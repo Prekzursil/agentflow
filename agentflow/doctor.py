@@ -1717,7 +1717,7 @@ def _run_kimi_toolchain_probe(home: Path | None = None) -> subprocess.CompletedP
             f'[ "${{#codex_auth_sources[@]}}" -gt 0 ] || exit {_CODEX_LOGIN_STATUS_AFTER_KIMI_FAILED_EXIT_CODE}',
             'codex_auth_label="${codex_auth_sources[0]}"',
             'for codex_auth_source in "${codex_auth_sources[@]:1}"; do',
-            'codex_auth_label="${codex_auth_label} + ${codex_auth_source}"; '
+            'codex_auth_label="${codex_auth_label} + ${codex_auth_source}"; ',
             "done",
             'printf "CODEX_AUTH=%s\\n" "$codex_auth_label"',
             'claude_path="$(type -P claude 2>/dev/null || true)"',

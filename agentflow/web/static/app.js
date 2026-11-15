@@ -629,7 +629,6 @@ function renderRuns() {
     container.innerHTML = '<div class="small">No runs yet.</div>';
     return;
   }
-  const inactiveNodeStatuses = new Set(["pending", "queued", "ready"]);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
