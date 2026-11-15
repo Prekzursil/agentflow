@@ -13,14 +13,22 @@ _PIPELINE_SUFFIXES = {".py", ".json", ".yaml", ".yml"}
 
 
 def _validated_pipeline_path(path: str | Path) -> Path:
-    """Resolve and validate a user-supplied pipeline path before any use."""
+    """Resolve and validate a user-supplied pipeline path before any use.
+
+    The returned path is re-derived from the parent directory's actual
+    entries, so downstream file access uses a filesystem-sourced value
+    rather than the raw user input (and cannot race with the check).
+    """
     resolved = Path(path).expanduser().resolve()
     if not resolved.is_file():
         raise FileNotFoundError(f"pipeline file not found: {path}")
     if resolved.suffix.lower() not in _PIPELINE_SUFFIXES:
         expected = ", ".join(sorted(_PIPELINE_SUFFIXES))
         raise ValueError(f"unsupported pipeline file type `{resolved.suffix or resolved.name}` (expected {expected})")
-    return resolved
+    try:
+        return next(entry for entry in resolved.parent.iterdir() if entry.name == resolved.name)
+    except StopIteration:
+        raise FileNotFoundError(f"pipeline file not found: {path}") from None
 
 
 def load_pipeline_from_path(path: str | Path) -> PipelineSpec:
