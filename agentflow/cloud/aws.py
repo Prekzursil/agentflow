@@ -130,7 +130,7 @@ def collect_local_credentials(agent: str) -> dict[str, str]:
                 if auth.get("OPENAI_API_KEY"):
                     env["OPENAI_API_KEY"] = auth["OPENAI_API_KEY"]
             except (json.JSONDecodeError, OSError):
-                pass
+                logger.debug("Unreadable codex auth file; continuing without it", exc_info=True)
         # ~/.codex/config.toml for base_url
         config_path = Path.home() / ".codex" / "config.toml"
         if config_path.exists():
@@ -144,7 +144,7 @@ def collect_local_credentials(agent: str) -> dict[str, str]:
                             env["OPENAI_BASE_URL"] = value
                             break
             except OSError:
-                pass
+                logger.debug("Unreadable codex config; continuing without it", exc_info=True)
         if os.environ.get("OPENAI_API_KEY"):
             env.setdefault("OPENAI_API_KEY", os.environ["OPENAI_API_KEY"])
         if os.environ.get("OPENAI_BASE_URL"):
@@ -160,7 +160,7 @@ def collect_local_credentials(agent: str) -> dict[str, str]:
                 if isinstance(oauth, dict) and oauth.get("accessToken"):
                     env["ANTHROPIC_API_KEY"] = oauth["accessToken"]
             except (json.JSONDecodeError, OSError):
-                pass
+                logger.debug("Unreadable claude credentials; continuing without them", exc_info=True)
         if os.environ.get("ANTHROPIC_API_KEY"):
             env.setdefault("ANTHROPIC_API_KEY", os.environ["ANTHROPIC_API_KEY"])
         if os.environ.get("ANTHROPIC_BASE_URL"):
