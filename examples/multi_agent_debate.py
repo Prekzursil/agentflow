@@ -38,8 +38,8 @@ with Graph("multi-agent-debate") as dag:
         ),
     )
 
-    codex_solve >> [codex_critique, claude_critique]
-    claude_solve >> [codex_critique, claude_critique]
-    [codex_critique, claude_critique] >> synthesis
+    _ = codex_solve >> [codex_critique, claude_critique]
+    _ = claude_solve >> [codex_critique, claude_critique]
+    _ = [codex_critique, claude_critique] >> synthesis
 
 print(dag.to_json())

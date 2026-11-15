@@ -9,8 +9,22 @@ from typing import Any
 from agentflow.specs import PipelineSpec, expand_compact_nodes
 
 
+_PIPELINE_SUFFIXES = {".py", ".json", ".yaml", ".yml"}
+
+
+def _validated_pipeline_path(path: str | Path) -> Path:
+    """Resolve and validate a user-supplied pipeline path before any use."""
+    resolved = Path(path).expanduser().resolve()
+    if not resolved.is_file():
+        raise FileNotFoundError(f"pipeline file not found: {path}")
+    if resolved.suffix.lower() not in _PIPELINE_SUFFIXES:
+        expected = ", ".join(sorted(_PIPELINE_SUFFIXES))
+        raise ValueError(f"unsupported pipeline file type `{resolved.suffix or resolved.name}` (expected {expected})")
+    return resolved
+
+
 def load_pipeline_from_path(path: str | Path) -> PipelineSpec:
-    path = Path(path)
+    path = _validated_pipeline_path(path)
     if path.suffix == ".py":
         return _load_pipeline_from_python(path)
     data = path.read_text(encoding="utf-8")

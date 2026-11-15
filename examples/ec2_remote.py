@@ -21,6 +21,6 @@ with Graph("ec2-remote-demo", working_dir=".", concurrency=2) as dag:
             "Remote scan:\n{{ nodes.scan.output }}"
         ),
     )
-    scan >> review
+    _ = scan >> review
 
 print(dag.to_json())

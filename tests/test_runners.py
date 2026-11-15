@@ -597,7 +597,7 @@ async def test_local_runner_cancellation_escalates_when_process_ignores_sigterm(
             timeout=2,
         )
     finally:
-        await cancel_task
+        _ = await cancel_task
 
     assert result.cancelled is True
     assert result.timed_out is False

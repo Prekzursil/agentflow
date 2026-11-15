@@ -11,10 +11,10 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-import agentflow.cli
+from agentflow import cli
 import agentflow.inspection
 import agentflow.local_shell
-from agentflow.cli import app, _render_doctor_summary
+from cli import app, _render_doctor_summary
 from agentflow.doctor import (
     DoctorCheck,
     DoctorReport,
@@ -50,8 +50,8 @@ def test_stream_supports_tty_summary_treats_click_testing_streams_as_terminal():
         typer.echo(
             json.dumps(
                 {
-                    "stdout": agentflow.cli._stream_supports_tty_summary(err=False),
-                    "stderr": agentflow.cli._stream_supports_tty_summary(err=True),
+                    "stdout": cli._stream_supports_tty_summary(err=False),
+                    "stderr": cli._stream_supports_tty_summary(err=True),
                 }
             )
         )
@@ -95,7 +95,7 @@ def _custom_kimi_preflight_report(
 
 def _reject_bundled_smoke_doctor(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: (_ for _ in ()).throw(AssertionError("bundled smoke doctor should not run for custom kimi preflight")),
     )
@@ -111,7 +111,7 @@ def _mock_custom_kimi_preflight(
 ) -> None:
     _reject_bundled_smoke_doctor(monkeypatch)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_kimi_bootstrap_doctor_report",
         lambda: _custom_kimi_preflight_report(
             kimi_status=kimi_status,
@@ -166,24 +166,24 @@ def _bash_startup_context(
 
 
 def _disable_local_readiness_probes(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_kimi_readiness_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_codex_readiness_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_codex_auth_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_kimi_readiness_info_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_claude_readiness_info_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_codex_readiness_info_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_codex_auth_info_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_kimi_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_codex_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_codex_auth_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_kimi_readiness_info_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_claude_readiness_info_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_codex_readiness_info_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_codex_auth_info_checks", lambda pipeline: [])
 
 
 def _mock_local_readiness_info(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_kimi_readiness_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_codex_readiness_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_codex_auth_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_kimi_readiness_info_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_kimi_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_codex_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_codex_auth_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_kimi_readiness_info_checks", lambda pipeline: [])
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_pipeline_local_claude_readiness_info_checks",
         lambda pipeline: [
             DoctorCheck(
@@ -197,7 +197,7 @@ def _mock_local_readiness_info(monkeypatch: pytest.MonkeyPatch) -> None:
         ],
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_pipeline_local_codex_readiness_info_checks",
         lambda pipeline: [
             DoctorCheck(
@@ -211,7 +211,7 @@ def _mock_local_readiness_info(monkeypatch: pytest.MonkeyPatch) -> None:
         ],
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_pipeline_local_codex_auth_info_checks",
         lambda pipeline: [
             DoctorCheck(
@@ -535,10 +535,10 @@ def test_render_doctor_summary_appends_bash_startup_summary_suffix():
 
 @pytest.mark.local_shell_env
 def test_doctor_command_json_preserves_bash_startup_context(monkeypatch):
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
-    monkeypatch.setattr(agentflow.cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
+    monkeypatch.setattr(cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="ok",
@@ -771,7 +771,7 @@ def test_inspect_defaults_to_json_output_when_not_tty(tmp_path, monkeypatch):
         json.dumps({"name": 'inspect-auto-json', "working_dir": '.', "nodes": [{"id": 'review', "agent": 'claude', "prompt": 'hi'}]}),
         encoding="utf-8",
     )
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: False)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: False)
 
     result = runner.invoke(app, ["inspect", str(pipeline_path)])
 
@@ -793,7 +793,7 @@ def test_inspect_defaults_to_summary_output_on_tty(tmp_path, monkeypatch):
         json.dumps({"name": 'inspect-auto-summary', "working_dir": '.', "nodes": [{"id": 'review', "agent": 'claude', "prompt": 'hi'}]}),
         encoding="utf-8",
     )
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
 
     result = runner.invoke(app, ["inspect", str(pipeline_path)])
 
@@ -2428,9 +2428,9 @@ def test_run_and_smoke_preflight_warn_when_kimi_shell_init_is_not_interactive(tm
     captured: dict[str, object] = {}
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", lambda: _custom_kimi_preflight_report())
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _custom_kimi_preflight_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_run_pipeline",
         lambda pipeline, runs_dir, max_concurrent_runs, output: captured.setdefault("pipeline", pipeline.name),
     )
@@ -2467,11 +2467,11 @@ def test_run_and_smoke_preflight_fail_when_kimi_shell_init_uses_non_bash_shell(t
     )
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", lambda: _custom_kimi_preflight_report())
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _custom_kimi_preflight_report)
     monkeypatch.setenv("ANTHROPIC_API_KEY", "super-secret")
     monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://open.bigmodel.cn/api/anthropic")
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_run_pipeline",
         lambda pipeline, runs_dir, max_concurrent_runs, output: pytest.fail("pipeline should not run"),
     )
@@ -2514,10 +2514,10 @@ def test_run_and_smoke_preflight_accepts_kimi_shell_init_when_login_shell_alread
     captured: dict[str, object] = {}
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", lambda: _custom_kimi_preflight_report())
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _custom_kimi_preflight_report)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "probe_target_bash_startup_env_var",
         lambda *args, **kwargs: agentflow.local_shell.BashStartupEnvProbeResult(exported=False),
     )
@@ -2532,7 +2532,7 @@ def test_run_and_smoke_preflight_accepts_kimi_shell_init_when_login_shell_alread
         ),
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_run_pipeline",
         lambda pipeline, runs_dir, max_concurrent_runs, output: captured.setdefault("pipeline", pipeline.name),
     )
@@ -2564,7 +2564,7 @@ def test_run_and_smoke_preflight_skips_codex_auth_probe_when_kimi_shell_init_use
     )
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", lambda: _custom_kimi_preflight_report())
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _custom_kimi_preflight_report)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setattr(
         subprocess,
@@ -2572,7 +2572,7 @@ def test_run_and_smoke_preflight_skips_codex_auth_probe_when_kimi_shell_init_use
         lambda *args, **kwargs: pytest.fail("codex auth probe should not run when the kimi shell bootstrap already fails"),
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_run_pipeline",
         lambda pipeline, runs_dir, max_concurrent_runs, output: pytest.fail("pipeline should not run"),
     )
@@ -2611,9 +2611,9 @@ def test_run_and_smoke_preflight_warn_when_explicit_kimi_shell_wrapper_is_not_in
     captured: dict[str, object] = {}
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", lambda: _custom_kimi_preflight_report())
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _custom_kimi_preflight_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_run_pipeline",
         lambda pipeline, runs_dir, max_concurrent_runs, output: captured.setdefault("pipeline", pipeline.name),
     )
@@ -2653,9 +2653,9 @@ def test_run_and_smoke_preflight_warn_when_eval_style_kimi_wrapper_is_not_intera
     captured: dict[str, object] = {}
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", lambda: _custom_kimi_preflight_report())
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _custom_kimi_preflight_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_run_pipeline",
         lambda pipeline, runs_dir, max_concurrent_runs, output: captured.setdefault("pipeline", pipeline.name),
     )
@@ -2695,9 +2695,9 @@ def test_run_and_smoke_preflight_warn_when_backtick_eval_kimi_wrapper_is_not_int
     captured: dict[str, object] = {}
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", lambda: _custom_kimi_preflight_report())
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _custom_kimi_preflight_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_run_pipeline",
         lambda pipeline, runs_dir, max_concurrent_runs, output: captured.setdefault("pipeline", pipeline.name),
     )
@@ -2811,9 +2811,9 @@ def test_serve_uses_runtime_env_vars(monkeypatch):
         captured["max_concurrent_runs"] = max_concurrent_runs
         return object(), object()
 
-    monkeypatch.setattr(agentflow.cli, "_build_runtime", fake_build_runtime)
-    monkeypatch.setattr(agentflow.cli, "_create_web_app", lambda store, orchestrator: "fake-app")
-    monkeypatch.setattr(agentflow.cli, "_serve_web_app", lambda app, host, port: captured.update({"app": app, "host": host, "port": port}))
+    monkeypatch.setattr(cli, "_build_runtime", fake_build_runtime)
+    monkeypatch.setattr(cli, "_create_web_app", lambda store, orchestrator: "fake-app")
+    monkeypatch.setattr(cli, "_serve_web_app", lambda app, host, port: captured.update({"app": app, "host": host, "port": port}))
 
     result = runner.invoke(app, ["serve"])
 
@@ -2852,8 +2852,8 @@ def test_run_uses_runtime_env_vars(monkeypatch):
         return object(), FakeOrchestrator()
 
     fake_pipeline = object()
-    monkeypatch.setattr(agentflow.cli, "_build_runtime", fake_build_runtime)
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: fake_pipeline)
+    monkeypatch.setattr(cli, "_build_runtime", fake_build_runtime)
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: fake_pipeline)
 
     result = runner.invoke(app, ["run", "pipeline.yaml", "--output", "json"])
 
@@ -2896,9 +2896,9 @@ def test_run_defaults_to_summary_on_tty(monkeypatch):
                 },
             )
 
-    monkeypatch.setattr(agentflow.cli, "_build_runtime", lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()))
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: object())
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: not err)
+    monkeypatch.setattr(cli, "_build_runtime", lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()))
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: object())
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: not err)
 
     result = runner.invoke(app, ["run", "pipeline.yaml"])
 
@@ -2939,8 +2939,8 @@ def test_run_supports_summary_output(monkeypatch):
                 },
             )
 
-    monkeypatch.setattr(agentflow.cli, "_build_runtime", lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()))
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: object())
+    monkeypatch.setattr(cli, "_build_runtime", lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()))
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: object())
 
     result = runner.invoke(app, ["run", "pipeline.yaml", "--output", "summary"])
 
@@ -2981,8 +2981,8 @@ def test_run_supports_json_summary_output(monkeypatch):
                 },
             )
 
-    monkeypatch.setattr(agentflow.cli, "_build_runtime", lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()))
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: object())
+    monkeypatch.setattr(cli, "_build_runtime", lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()))
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: object())
 
     result = runner.invoke(app, ["run", "pipeline.yaml", "--output", "json-summary"])
 
@@ -3016,7 +3016,7 @@ def test_runs_supports_summary_output(monkeypatch):
     older = _completed_run("run-list-older", pipeline_name="older-pipeline", status="running")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_store",
         lambda runs_dir: SimpleNamespace(
             list_runs=lambda: [recent, older],
@@ -3036,14 +3036,14 @@ def test_runs_defaults_to_first_twenty_records(monkeypatch):
     records = [_completed_run(f"run-{index:02d}", pipeline_name=f"pipeline-{index:02d}") for index in range(25)]
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_store",
         lambda runs_dir: SimpleNamespace(
             list_runs=lambda: records,
             run_dir=lambda run_id: Path(runs_dir) / run_id,
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
 
     result = runner.invoke(app, ["runs"])
 
@@ -3058,14 +3058,14 @@ def test_runs_limit_zero_shows_all_records(monkeypatch):
     records = [_completed_run(f"run-{index:02d}", pipeline_name=f"pipeline-{index:02d}") for index in range(25)]
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_store",
         lambda runs_dir: SimpleNamespace(
             list_runs=lambda: records,
             run_dir=lambda run_id: Path(runs_dir) / run_id,
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
 
     result = runner.invoke(app, ["runs", "--limit", "0"])
 
@@ -3078,7 +3078,7 @@ def test_runs_supports_json_summary_output(monkeypatch):
     recent = _completed_run("run-list-json", pipeline_name="json-pipeline")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_store",
         lambda runs_dir: SimpleNamespace(
             list_runs=lambda: [recent],
@@ -3108,14 +3108,14 @@ def test_runs_defaults_to_json_when_stdout_is_not_a_tty(monkeypatch):
     recent = _completed_run("run-list-json-auto", pipeline_name="json-pipeline")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_store",
         lambda runs_dir: SimpleNamespace(
             list_runs=lambda: [recent],
             run_dir=lambda run_id: Path(runs_dir) / run_id,
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: False)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: False)
 
     result = runner.invoke(app, ["runs"])
 
@@ -3127,14 +3127,14 @@ def test_show_outputs_summary_for_persisted_run(monkeypatch):
     record = _completed_run("run-show", pipeline_name="show-pipeline")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_store",
         lambda runs_dir: SimpleNamespace(
             get_run=lambda run_id: record,
             run_dir=lambda run_id: Path(runs_dir) / run_id,
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
 
     result = runner.invoke(app, ["show", "run-show"])
 
@@ -3148,14 +3148,14 @@ def test_show_defaults_to_json_when_stdout_is_not_a_tty(monkeypatch):
     record = _completed_run("run-show-json", pipeline_name="show-pipeline")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_store",
         lambda runs_dir: SimpleNamespace(
             get_run=lambda run_id: record,
             run_dir=lambda run_id: Path(runs_dir) / run_id,
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: False)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: False)
 
     result = runner.invoke(app, ["show", "run-show-json"])
 
@@ -3168,7 +3168,7 @@ def test_show_exits_for_missing_run(monkeypatch):
         raise KeyError(run_id)
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_store",
         lambda runs_dir: SimpleNamespace(get_run=_missing),
     )
@@ -3188,14 +3188,14 @@ def test_cancel_outputs_summary_for_existing_run(monkeypatch):
             return _completed_run("run-cancel", pipeline_name="cancel-pipeline", status="cancelling")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (
             SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id),
             FakeOrchestrator(),
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
 
     result = runner.invoke(app, ["cancel", "run-cancel"])
 
@@ -3214,14 +3214,14 @@ def test_cancel_defaults_to_json_when_stdout_is_not_a_tty(monkeypatch):
             return _completed_run("run-cancel-json", pipeline_name="cancel-pipeline", status="cancelling")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (
             SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id),
             FakeOrchestrator(),
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: False)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: False)
 
     result = runner.invoke(app, ["cancel", "run-cancel-json"])
 
@@ -3236,7 +3236,7 @@ def test_cancel_exits_for_missing_run(monkeypatch):
             raise KeyError(run_id)
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -3271,7 +3271,7 @@ def test_rerun_supports_json_summary_output(monkeypatch):
             return _completed_run("run-rerun-new", pipeline_name="rerun-pipeline")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (
             SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id),
@@ -3322,14 +3322,14 @@ def test_rerun_defaults_to_json_when_stdout_is_not_a_tty(monkeypatch):
             return _completed_run("run-rerun-json", pipeline_name="rerun-pipeline")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (
             SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id),
             FakeOrchestrator(),
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: False)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: False)
 
     result = runner.invoke(app, ["rerun", "run-old"])
 
@@ -3346,7 +3346,7 @@ def test_rerun_exits_for_missing_run(monkeypatch):
             raise KeyError(run_id)
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -3370,14 +3370,14 @@ def test_run_skips_preflight_for_custom_pipeline_in_auto_mode(monkeypatch):
             captured["wait_timeout"] = timeout
             return _completed_run(run_id, pipeline_name="custom-run")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: (_ for _ in ()).throw(AssertionError("doctor should not run")))
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", lambda: (_ for _ in ()).throw(AssertionError("doctor should not run")))
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
     fake_pipeline = object()
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["run", "custom-run.yaml", "--output", "json"])
 
@@ -3410,9 +3410,9 @@ def test_run_auto_runs_preflight_for_custom_pipeline_with_kimi_shell_init(monkey
         return _custom_kimi_preflight_report()
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -3424,7 +3424,7 @@ def test_run_auto_runs_preflight_for_custom_pipeline_with_kimi_shell_init(monkey
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["run", "custom-run.yaml"])
 
@@ -3450,10 +3450,10 @@ def test_run_show_preflight_prints_successful_summary_to_stderr(monkeypatch):
             return _completed_run(run_id, pipeline_name="custom-kimi-run")
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", lambda: _custom_kimi_preflight_report())
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _custom_kimi_preflight_report)
     monkeypatch.setattr("agentflow.doctor.subprocess.run", _codex_ready_and_auth_subprocess(_CODEX_AUTH_VIA_API_KEY_AND_LOGIN_STATUS_EXIT_CODE))
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -3466,7 +3466,7 @@ def test_run_show_preflight_prints_successful_summary_to_stderr(monkeypatch):
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["run", "custom-run.yaml", "--output", "summary", "--show-preflight"])
 
@@ -3493,7 +3493,7 @@ def test_run_auto_preflight_stops_when_local_codex_auth_is_unavailable(monkeypat
     captured: dict[str, object] = {}
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", lambda: _custom_kimi_preflight_report())
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _custom_kimi_preflight_report)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
     def fake_run(*args, **kwargs):
@@ -3508,7 +3508,7 @@ def test_run_auto_preflight_stops_when_local_codex_auth_is_unavailable(monkeypat
 
     monkeypatch.setattr(subprocess, "run", fake_run)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("runtime should not build when preflight fails")),
     )
@@ -3532,7 +3532,7 @@ def test_run_auto_preflight_stops_when_local_codex_auth_is_unavailable(monkeypat
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["run", "custom-run.yaml", "--output", "summary"])
 
@@ -3552,7 +3552,7 @@ def test_run_auto_preflight_stops_when_local_codex_is_unavailable_after_shell_bo
     captured: dict[str, object] = {}
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", lambda: _custom_kimi_preflight_report())
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _custom_kimi_preflight_report)
     monkeypatch.setenv("OPENAI_API_KEY", "test-openai-key")
     monkeypatch.setattr(
         subprocess,
@@ -3560,7 +3560,7 @@ def test_run_auto_preflight_stops_when_local_codex_is_unavailable_after_shell_bo
         lambda *args, **kwargs: subprocess.CompletedProcess(args=args[0], returncode=1, stdout="", stderr=""),
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("runtime should not build when preflight fails")),
     )
@@ -3584,7 +3584,7 @@ def test_run_auto_preflight_stops_when_local_codex_is_unavailable_after_shell_bo
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["run", "custom-run.yaml", "--output", "summary"])
 
@@ -3604,10 +3604,10 @@ def test_run_auto_preflight_stops_when_local_claude_is_unavailable_after_shell_b
     captured: dict[str, object] = {}
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", lambda: _custom_kimi_preflight_report())
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _custom_kimi_preflight_report)
     monkeypatch.setattr(subprocess, "run", _completed_subprocess(returncode=1))
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("runtime should not build when preflight fails")),
     )
@@ -3631,7 +3631,7 @@ def test_run_auto_preflight_stops_when_local_claude_is_unavailable_after_shell_b
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["run", "custom-run.yaml", "--output", "summary"])
 
@@ -3667,9 +3667,9 @@ def test_run_auto_runs_preflight_for_custom_pipeline_with_kimi_agent(monkeypatch
         return _custom_kimi_preflight_report()
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -3682,7 +3682,7 @@ def test_run_auto_runs_preflight_for_custom_pipeline_with_kimi_agent(monkeypatch
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["run", "custom-run.yaml"])
 
@@ -3714,9 +3714,9 @@ def test_run_auto_runs_preflight_for_custom_pipeline_with_shell_init_command_lis
         return _custom_kimi_preflight_report()
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -3728,7 +3728,7 @@ def test_run_auto_runs_preflight_for_custom_pipeline_with_shell_init_command_lis
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["run", "custom-run.yaml"])
 
@@ -3753,9 +3753,9 @@ def test_run_auto_ignores_non_helper_kimi_substrings(monkeypatch):
             captured["wait_timeout"] = timeout
             return _completed_run(run_id, pipeline_name="custom-non-kimi-run")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: (_ for _ in ()).throw(AssertionError("doctor should not run")))
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", lambda: (_ for _ in ()).throw(AssertionError("doctor should not run")))
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -3767,7 +3767,7 @@ def test_run_auto_ignores_non_helper_kimi_substrings(monkeypatch):
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["run", "custom-run.yaml"])
 
@@ -3797,16 +3797,16 @@ def test_run_runs_preflight_for_explicit_bundled_pipeline_path(monkeypatch):
         doctor_calls += 1
         return _doctor_report()
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", fake_doctor_report)
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", fake_doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
     bundled_path = str((Path.cwd() / "examples/local-real-agents-kimi-smoke.yaml").resolve())
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: bundled_path)
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: bundled_path)
     fake_pipeline = object()
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["run", bundled_path, "--output", "json"])
 
@@ -3829,16 +3829,16 @@ def test_run_and_smoke_bundled_preflight_applies_pipeline_shell_checks(monkeypat
     bundled_path = str((Path.cwd() / "examples/local-real-agents-kimi-smoke.py").resolve())
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="ok",
             checks=[DoctorCheck(name="kimi_shell_helper", status="ok", detail="ready")],
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: bundled_path)
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: bundled_path)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_run_pipeline",
         lambda pipeline, runs_dir, max_concurrent_runs, output: pytest.fail("pipeline should not run"),
     )
@@ -3861,7 +3861,7 @@ def test_run_and_smoke_bundled_preflight_applies_pipeline_shell_checks(monkeypat
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: fake_pipeline)
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: fake_pipeline)
 
     args = [*command, bundled_path, "--output", "json"] if command[0] == "run" else [*command, "--output", "json"]
     if command[0] == "smoke":
@@ -3910,16 +3910,16 @@ def test_run_can_disable_preflight_for_bundled_pipeline(monkeypatch):
             captured["wait_timeout"] = timeout
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: (_ for _ in ()).throw(AssertionError("doctor should not run")))
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", lambda: (_ for _ in ()).throw(AssertionError("doctor should not run")))
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
     bundled_path = str((Path.cwd() / "examples/local-real-agents-kimi-smoke.yaml").resolve())
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: bundled_path)
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: bundled_path)
     fake_pipeline = object()
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["run", bundled_path, "--preflight", "never"])
 
@@ -3933,12 +3933,12 @@ def test_run_can_disable_preflight_for_bundled_pipeline(monkeypatch):
 def test_run_stops_when_detected_preflight_fails(monkeypatch):
     bundled_path = str((Path.cwd() / "examples/local-real-agents-kimi-smoke.yaml").resolve())
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing"))
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: bundled_path)
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing"))
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: bundled_path)
     monkeypatch.setenv("ANTHROPIC_API_KEY", "super-secret")
     monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://open.bigmodel.cn/api/anthropic")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: (_ for _ in ()).throw(AssertionError("pipeline should not load")))
-    monkeypatch.setattr(agentflow.cli, "_build_runtime", lambda runs_dir, max_concurrent_runs: (_ for _ in ()).throw(AssertionError("runtime should not build")))
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: (_ for _ in ()).throw(AssertionError("pipeline should not load")))
+    monkeypatch.setattr(cli, "_build_runtime", lambda runs_dir, max_concurrent_runs: (_ for _ in ()).throw(AssertionError("runtime should not build")))
 
     result = runner.invoke(app, ["run", bundled_path, "--output", "json"])
 
@@ -4008,10 +4008,10 @@ def test_smoke_uses_bundled_pipeline_by_default(monkeypatch):
         return object(), FakeOrchestrator()
 
     fake_pipeline = object()
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
-    monkeypatch.setattr(agentflow.cli, "_build_runtime", lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), fake_build_runtime(runs_dir, max_concurrent_runs)[1]))
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
+    monkeypatch.setattr(cli, "_build_runtime", lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), fake_build_runtime(runs_dir, max_concurrent_runs)[1]))
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["smoke"])
 
@@ -4055,7 +4055,7 @@ def test_render_run_summary_includes_provider_account_diagnosis_for_api_errors()
         },
     )
 
-    rendered = agentflow.cli._render_run_summary(record, run_dir=".agentflow/runs/smoke-provider-error")
+    rendered = cli._render_run_summary(record, run_dir=".agentflow/runs/smoke-provider-error")
 
     assert "Run smoke-provider-error: failed" in rendered
     assert (
@@ -4096,7 +4096,7 @@ def test_build_run_summary_includes_provider_account_diagnosis_for_api_errors():
         },
     )
 
-    summary = agentflow.cli._build_run_summary(record, run_dir=".agentflow/runs/smoke-provider-error-json")
+    summary = cli._build_run_summary(record, run_dir=".agentflow/runs/smoke-provider-error-json")
 
     assert summary["nodes"] == [
         {
@@ -4121,7 +4121,7 @@ def test_check_local_uses_bundled_pipeline_by_default(monkeypatch):
 
     monkeypatch.setenv("AGENTFLOW_RUNS_DIR", "/tmp/agentflow-check-local-runs")
     monkeypatch.setenv("AGENTFLOW_MAX_CONCURRENT_RUNS", "4")
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
     _mock_local_readiness_info(monkeypatch)
 
     class FakeOrchestrator:
@@ -4139,9 +4139,9 @@ def test_check_local_uses_bundled_pipeline_by_default(monkeypatch):
         captured["max_concurrent_runs"] = max_concurrent_runs
         return object(), FakeOrchestrator()
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (
             SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id),
@@ -4164,8 +4164,8 @@ def test_check_local_uses_bundled_pipeline_by_default(monkeypatch):
             ),
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: bundled_path)
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: bundled_path)
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["check-local"])
 
@@ -4190,7 +4190,7 @@ def test_check_local_uses_bundled_pipeline_by_default(monkeypatch):
 
 def test_check_local_accepts_wrapper_preflight_flags_for_cli_parity(monkeypatch):
     captured: dict[str, object] = {}
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
 
     class FakeOrchestrator:
         async def submit(self, pipeline: object):
@@ -4201,18 +4201,18 @@ def test_check_local_accepts_wrapper_preflight_flags_for_cli_parity(monkeypatch)
             captured["wait_run_id"] = run_id
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (
             SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id),
             FakeOrchestrator(),
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
     fake_pipeline = SimpleNamespace(nodes=[])
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: fake_pipeline)
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: fake_pipeline)
 
     result = runner.invoke(app, ["check-local", "--preflight", "auto", "--show-preflight"])
 
@@ -4226,7 +4226,7 @@ def test_check_local_accepts_wrapper_preflight_flags_for_cli_parity(monkeypatch)
 
 def test_check_local_rejects_preflight_never(monkeypatch):
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_doctor_report_for_path",
         lambda path: (_ for _ in ()).throw(AssertionError("doctor should not run when `--preflight never` is rejected")),
     )
@@ -4238,7 +4238,7 @@ def test_check_local_rejects_preflight_never(monkeypatch):
 
 def test_check_local_reuses_preflight_loaded_pipeline(monkeypatch):
     captured: dict[str, object] = {}
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
 
     class FakeOrchestrator:
         async def submit(self, pipeline: object):
@@ -4248,13 +4248,13 @@ def test_check_local_reuses_preflight_loaded_pipeline(monkeypatch):
         async def wait(self, run_id: str, timeout: float | None = None):
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
 
     loaded_pipelines = [object(), object()]
 
@@ -4265,7 +4265,7 @@ def test_check_local_reuses_preflight_loaded_pipeline(monkeypatch):
         captured.setdefault("loaded_pipelines", []).append(pipeline)
         return pipeline
 
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", fake_load)
+    monkeypatch.setattr(cli, "_load_pipeline", fake_load)
 
     result = runner.invoke(app, ["check-local"])
 
@@ -4285,9 +4285,9 @@ def test_check_local_defaults_to_json_when_not_tty(monkeypatch):
         async def wait(self, run_id: str, timeout: float | None = None):
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: False)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: False)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="warning",
@@ -4295,12 +4295,12 @@ def test_check_local_defaults_to_json_when_not_tty(monkeypatch):
         ),
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: object())
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: object())
 
     result = runner.invoke(app, ["check-local"])
 
@@ -4330,9 +4330,9 @@ def test_check_local_auto_uses_json_when_stdout_is_redirected_but_stderr_is_tty(
         async def wait(self, run_id: str, timeout: float | None = None):
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: err)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: err)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="warning",
@@ -4340,12 +4340,12 @@ def test_check_local_auto_uses_json_when_stdout_is_redirected_but_stderr_is_tty(
         ),
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: object())
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: object())
 
     result = runner.invoke(app, ["check-local"])
 
@@ -4376,15 +4376,15 @@ def test_check_local_defaults_to_summary_on_tty(monkeypatch):
         async def wait(self, run_id: str, timeout: float | None = None):
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: object())
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: object())
 
     result = runner.invoke(app, ["check-local"])
 
@@ -4409,21 +4409,21 @@ def test_check_local_uses_json_doctor_output_when_run_output_is_json(monkeypatch
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="warning",
             checks=[DoctorCheck(name="bash_login_startup", status="warning", detail="missing bridge")],
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
+    monkeypatch.setattr(cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: object())
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: object())
 
     result = runner.invoke(app, ["check-local", "--output", "json", "--shell-bridge"])
 
@@ -4476,7 +4476,7 @@ def test_check_local_uses_json_summary_doctor_output_when_run_output_is_json_sum
             )
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="warning",
@@ -4496,14 +4496,14 @@ def test_check_local_uses_json_summary_doctor_output_when_run_output_is_json_sum
             ],
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
+    monkeypatch.setattr(cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: object())
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: object())
 
     result = runner.invoke(app, ["check-local", "--output", "json-summary", "--shell-bridge"])
 
@@ -4557,11 +4557,11 @@ def test_check_local_uses_json_summary_doctor_output_when_run_output_is_json_sum
 def test_check_local_stops_when_doctor_fails(monkeypatch):
     bundled_path = str((Path.cwd() / "examples/local-real-agents-kimi-smoke.yaml").resolve())
 
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing"))
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: bundled_path)
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader({}, object()))
-    monkeypatch.setattr(agentflow.cli, "_build_runtime", lambda runs_dir, max_concurrent_runs: (_ for _ in ()).throw(AssertionError("runtime should not build")))
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing"))
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: bundled_path)
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader({}, object()))
+    monkeypatch.setattr(cli, "_build_runtime", lambda runs_dir, max_concurrent_runs: (_ for _ in ()).throw(AssertionError("runtime should not build")))
 
     result = runner.invoke(app, ["check-local"])
 
@@ -4577,9 +4577,9 @@ def test_check_local_stops_when_doctor_fails(monkeypatch):
 def test_doctor_custom_non_kimi_pipeline_skips_bundled_smoke_prereqs(monkeypatch):
     fake_pipeline = SimpleNamespace(nodes=[])
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing kimi"))
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: fake_pipeline)
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing kimi"))
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: fake_pipeline)
 
     result = runner.invoke(app, ["doctor", "examples/custom.yaml", "--output", "json"])
 
@@ -4601,7 +4601,7 @@ def test_doctor_custom_non_kimi_pipeline_skips_bundled_smoke_prereqs(monkeypatch
 def test_check_local_custom_non_kimi_pipeline_skips_bundled_smoke_prereqs(monkeypatch):
     captured: dict[str, object] = {}
     fake_pipeline = SimpleNamespace(nodes=[])
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
 
     class FakeOrchestrator:
         async def submit(self, pipeline: object):
@@ -4612,11 +4612,11 @@ def test_check_local_custom_non_kimi_pipeline_skips_bundled_smoke_prereqs(monkey
             captured["wait_run_id"] = run_id
             return _completed_run(run_id, pipeline_name="custom")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing kimi"))
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: fake_pipeline)
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing kimi"))
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: fake_pipeline)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (
             SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id),
@@ -4638,7 +4638,7 @@ def test_check_local_custom_non_kimi_pipeline_skips_bundled_smoke_prereqs(monkey
 
 def test_check_local_custom_kimi_pipeline_reports_successful_local_agent_probes(monkeypatch):
     captured: dict[str, object] = {}
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
 
     class FakeOrchestrator:
         async def submit(self, pipeline: object):
@@ -4650,7 +4650,7 @@ def test_check_local_custom_kimi_pipeline_reports_successful_local_agent_probes(
             return _completed_run(run_id, pipeline_name="custom-kimi")
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", lambda: _custom_kimi_preflight_report())
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _custom_kimi_preflight_report)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setattr(subprocess, "run", _completed_subprocess())
     fake_pipeline = SimpleNamespace(
@@ -4688,9 +4688,9 @@ def test_check_local_custom_kimi_pipeline_reports_successful_local_agent_probes(
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (
             SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id),
@@ -4730,7 +4730,7 @@ def test_smoke_runs_when_bundled_preflight_warns(monkeypatch):
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="warning",
@@ -4738,13 +4738,13 @@ def test_smoke_runs_when_bundled_preflight_warns(monkeypatch):
         ),
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
     fake_pipeline = object()
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["smoke"])
 
@@ -4778,10 +4778,10 @@ def test_smoke_keeps_expected_launch_env_override_out_of_preflight_warning_state
         async def wait(self, run_id: str, timeout: float | None = None):
             return _completed_run(run_id, pipeline_name="bundled-smoke")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: str(pipeline_path))
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: str(pipeline_path))
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -4810,13 +4810,13 @@ def test_smoke_show_preflight_prints_successful_summary_to_stderr(monkeypatch):
             captured["wait_timeout"] = timeout
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
     fake_pipeline = SimpleNamespace(
         nodes=[
             SimpleNamespace(
@@ -4831,7 +4831,7 @@ def test_smoke_show_preflight_prints_successful_summary_to_stderr(monkeypatch):
             ),
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["smoke", "--show-preflight"])
 
@@ -4862,15 +4862,15 @@ def test_smoke_show_preflight_keeps_json_stdout_machine_readable(monkeypatch):
         async def wait(self, run_id: str, timeout: float | None = None):
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_load_pipeline",
         lambda path: SimpleNamespace(
             nodes=[
@@ -4912,21 +4912,21 @@ def test_smoke_warn_preflight_includes_shell_bridge_summary_when_available(monke
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="warning",
             checks=[DoctorCheck(name="bash_login_startup", status="warning", detail="missing bridge")],
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
+    monkeypatch.setattr(cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: object())
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: object())
 
     result = runner.invoke(app, ["smoke"])
 
@@ -4952,7 +4952,7 @@ def test_smoke_warn_preflight_honors_json_output(monkeypatch):
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="warning",
@@ -4960,12 +4960,12 @@ def test_smoke_warn_preflight_honors_json_output(monkeypatch):
         ),
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: object())
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: object())
 
     result = runner.invoke(app, ["smoke", "--output", "json"])
 
@@ -4997,12 +4997,12 @@ def test_run_auto_warn_preflight_uses_json_when_stdout_is_redirected_but_stderr_
             captured["wait_run_id"] = run_id
             return _completed_run(run_id, pipeline_name="custom-kimi-run")
 
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: err)
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: err)
     _reject_bundled_smoke_doctor(monkeypatch)
     _disable_local_readiness_probes(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
+    monkeypatch.setattr(cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_kimi_bootstrap_doctor_report",
         lambda: DoctorReport(
             status="warning",
@@ -5010,7 +5010,7 @@ def test_run_auto_warn_preflight_uses_json_when_stdout_is_redirected_but_stderr_
         ),
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -5025,7 +5025,7 @@ def test_run_auto_warn_preflight_uses_json_when_stdout_is_redirected_but_stderr_
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["run", "custom-run.yaml"])
 
@@ -5063,21 +5063,21 @@ def test_smoke_warn_preflight_includes_shell_bridge_json_when_available(monkeypa
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="warning",
             checks=[DoctorCheck(name="bash_login_startup", status="warning", detail="missing bridge")],
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
+    monkeypatch.setattr(cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: object())
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: object())
 
     result = runner.invoke(app, ["smoke", "--output", "json"])
 
@@ -5110,14 +5110,14 @@ def test_smoke_skips_preflight_for_custom_pipeline_in_auto_mode(monkeypatch):
             captured["wait_timeout"] = timeout
             return _completed_run(run_id, pipeline_name="custom-smoke")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: (_ for _ in ()).throw(AssertionError("doctor should not run")))
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", lambda: (_ for _ in ()).throw(AssertionError("doctor should not run")))
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
     fake_pipeline = object()
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["smoke", "custom-smoke.yaml"])
 
@@ -5149,9 +5149,9 @@ def test_smoke_auto_runs_preflight_for_custom_pipeline_with_kimi_shell_init(monk
         return _custom_kimi_preflight_report()
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -5163,7 +5163,7 @@ def test_smoke_auto_runs_preflight_for_custom_pipeline_with_kimi_shell_init(monk
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["smoke", "custom-smoke.yaml"])
 
@@ -5189,10 +5189,10 @@ def test_smoke_show_preflight_reports_pipeline_specific_readiness_for_custom_kim
             return _completed_run(run_id, pipeline_name="custom-kimi-smoke")
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", lambda: _custom_kimi_preflight_report())
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _custom_kimi_preflight_report)
     monkeypatch.setattr("agentflow.doctor.subprocess.run", _codex_ready_and_auth_subprocess(_CODEX_AUTH_VIA_API_KEY_AND_LOGIN_STATUS_EXIT_CODE))
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -5205,7 +5205,7 @@ def test_smoke_show_preflight_reports_pipeline_specific_readiness_for_custom_kim
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["smoke", "custom-smoke.yaml", "--output", "summary", "--show-preflight"])
 
@@ -5231,12 +5231,12 @@ def test_smoke_show_preflight_reports_pipeline_specific_readiness_for_custom_kim
 @pytest.mark.local_shell_env
 def test_smoke_failed_preflight_for_custom_kimi_pipeline_includes_shell_bridge_when_available(monkeypatch):
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: (_ for _ in ()).throw(AssertionError("bundled smoke doctor should not run for custom kimi preflight")),
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_kimi_bootstrap_doctor_report",
         lambda: DoctorReport(
             status="failed",
@@ -5246,7 +5246,7 @@ def test_smoke_failed_preflight_for_custom_kimi_pipeline_includes_shell_bridge_w
             ],
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
+    monkeypatch.setattr(cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
     fake_pipeline = SimpleNamespace(
         nodes=[
             SimpleNamespace(
@@ -5256,7 +5256,7 @@ def test_smoke_failed_preflight_for_custom_kimi_pipeline_includes_shell_bridge_w
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: fake_pipeline)
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: fake_pipeline)
 
     result = runner.invoke(app, ["smoke", "custom-smoke.yaml"])
 
@@ -5295,12 +5295,12 @@ def test_smoke_auto_runs_preflight_for_custom_claude_kimi_provider_without_host_
         return _custom_kimi_preflight_report()
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
     monkeypatch.setattr(subprocess, "run", _completed_subprocess())
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -5315,7 +5315,7 @@ def test_smoke_auto_runs_preflight_for_custom_claude_kimi_provider_without_host_
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["smoke", "custom-smoke.yaml"])
 
@@ -5347,9 +5347,9 @@ def test_smoke_auto_runs_preflight_for_custom_pipeline_with_kimi_agent(monkeypat
         return _custom_kimi_preflight_report()
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -5362,7 +5362,7 @@ def test_smoke_auto_runs_preflight_for_custom_pipeline_with_kimi_agent(monkeypat
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["smoke", "custom-smoke.yaml"])
 
@@ -5395,9 +5395,9 @@ def test_smoke_auto_runs_preflight_for_custom_pipeline_with_explicit_kimi_shell_
         return _custom_kimi_preflight_report()
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -5409,7 +5409,7 @@ def test_smoke_auto_runs_preflight_for_custom_pipeline_with_explicit_kimi_shell_
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["smoke", "custom-smoke.yaml"])
 
@@ -5442,9 +5442,9 @@ def test_smoke_auto_runs_preflight_for_custom_pipeline_with_backtick_eval_kimi_s
         return _custom_kimi_preflight_report()
 
     _reject_bundled_smoke_doctor(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", fake_doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
@@ -5456,7 +5456,7 @@ def test_smoke_auto_runs_preflight_for_custom_pipeline_with_backtick_eval_kimi_s
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["smoke", "custom-smoke.yaml"])
 
@@ -5490,16 +5490,16 @@ def test_smoke_runs_preflight_for_explicit_bundled_pipeline_path(monkeypatch):
             checks=[DoctorCheck(name="claude", status="warning", detail="bootstrap-only")],
         )
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", fake_doctor_report)
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", fake_doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
     bundled_path = str((Path.cwd() / "examples/local-real-agents-kimi-smoke.yaml").resolve())
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: bundled_path)
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: bundled_path)
     fake_pipeline = object()
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["smoke", bundled_path])
 
@@ -5540,22 +5540,22 @@ def test_run_and_smoke_force_preflight_for_custom_pipeline_use_pipeline_specific
     codex_readiness_pipelines: list[object] = []
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: (_ for _ in ()).throw(AssertionError("bundled smoke doctor should not run for custom forced preflight")),
     )
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_kimi_readiness_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_kimi_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_pipeline_local_codex_readiness_checks",
         lambda pipeline: codex_readiness_pipelines.append(pipeline) or [],
     )
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_codex_auth_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "build_pipeline_local_codex_auth_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_run_pipeline",
         lambda pipeline, runs_dir, max_concurrent_runs, output: captured.setdefault("submitted_pipeline", pipeline),
     )
@@ -5581,15 +5581,15 @@ def test_smoke_can_disable_bundled_preflight(monkeypatch):
             captured["wait_timeout"] = timeout
             return _completed_run(run_id, pipeline_name="local-real-agents-kimi-smoke")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: (_ for _ in ()).throw(AssertionError("doctor should not run")))
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", lambda: (_ for _ in ()).throw(AssertionError("doctor should not run")))
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
     fake_pipeline = object()
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["smoke", "--preflight", "never"])
 
@@ -5608,14 +5608,14 @@ def test_smoke_supports_json_output(monkeypatch):
         async def wait(self, run_id: str, timeout: float | None = None):
             return _completed_run(run_id)
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: object())
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: object())
 
     result = runner.invoke(app, ["smoke", "--output", "json"])
 
@@ -5653,14 +5653,14 @@ def test_smoke_supports_json_summary_output(monkeypatch):
                 },
             )
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id), FakeOrchestrator()),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: object())
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: object())
 
     result = runner.invoke(app, ["smoke", "--output", "json-summary"])
 
@@ -5690,9 +5690,9 @@ def test_smoke_supports_json_summary_output(monkeypatch):
 def test_doctor_outputs_json_report(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     _disable_local_readiness_probes(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
-    monkeypatch.setattr(agentflow.cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
+    monkeypatch.setattr(cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
 
     result = runner.invoke(app, ["doctor", "--output", "json"])
 
@@ -5721,10 +5721,10 @@ def test_doctor_outputs_json_report(monkeypatch):
 def test_doctor_outputs_json_summary_report(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     _disable_local_readiness_probes(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
-    monkeypatch.setattr(agentflow.cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
+    monkeypatch.setattr(cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="warning",
@@ -5780,10 +5780,10 @@ def test_doctor_outputs_json_summary_report(monkeypatch):
 def test_doctor_defaults_to_json_report(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     _disable_local_readiness_probes(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
-    monkeypatch.setattr(agentflow.cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: False)
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
+    monkeypatch.setattr(cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: False)
 
     result = runner.invoke(app, ["doctor"])
 
@@ -5811,10 +5811,10 @@ def test_doctor_defaults_to_json_report(monkeypatch):
 def test_doctor_defaults_to_summary_report_on_tty(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     _disable_local_readiness_probes(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
-    monkeypatch.setattr(agentflow.cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
+    monkeypatch.setattr(cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
 
     result = runner.invoke(app, ["doctor"])
 
@@ -5830,9 +5830,9 @@ def test_doctor_defaults_to_summary_report_on_tty(monkeypatch):
 def test_doctor_supports_summary_output(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     _disable_local_readiness_probes(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
-    monkeypatch.setattr(agentflow.cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
+    monkeypatch.setattr(cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
 
     result = runner.invoke(app, ["doctor", "--output", "summary"])
 
@@ -5850,9 +5850,9 @@ def test_doctor_without_path_includes_bundled_local_readiness_info(monkeypatch):
 
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     _mock_local_readiness_info(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     bundled_path = str((Path.cwd() / "examples/local-real-agents-kimi-smoke.yaml").resolve())
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: bundled_path)
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: bundled_path)
     fake_pipeline = SimpleNamespace(
         nodes=[
             SimpleNamespace(
@@ -5867,8 +5867,8 @@ def test_doctor_without_path_includes_bundled_local_readiness_info(monkeypatch):
             ),
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
-    monkeypatch.setattr(agentflow.cli, "_stream_supports_tty_summary", lambda *, err: True)
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_stream_supports_tty_summary", lambda *, err: True)
 
     result = runner.invoke(app, ["doctor"])
 
@@ -5898,7 +5898,7 @@ def test_doctor_with_pipeline_path_augments_report_for_kimi_shell_bootstrap_warn
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -5932,7 +5932,7 @@ def test_doctor_with_pipeline_path_augments_report_for_kimi_shell_bootstrap_nopr
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -5963,7 +5963,7 @@ def test_doctor_with_pipeline_path_fails_for_non_bash_kimi_shell_bootstrap(monke
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -5993,7 +5993,7 @@ def test_doctor_with_pipeline_path_augments_report_for_kimi_agent_bootstrap_warn
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6012,7 +6012,7 @@ def test_doctor_with_pipeline_path_augments_report_for_kimi_agent_bootstrap_warn
 def test_doctor_with_pipeline_path_fails_when_kimi_node_is_missing_kimi_api_key(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("KIMI_API_KEY", raising=False)
     fake_pipeline = SimpleNamespace(
         nodes=[
@@ -6025,7 +6025,7 @@ def test_doctor_with_pipeline_path_fails_when_kimi_node_is_missing_kimi_api_key(
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6057,7 +6057,7 @@ def test_doctor_with_pipeline_path_accepts_claude_kimi_provider_credentials_from
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6185,7 +6185,7 @@ def test_doctor_with_pipeline_path_fails_when_local_claude_is_unavailable_after_
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6238,7 +6238,7 @@ def test_doctor_with_pipeline_path_fails_when_local_codex_auth_is_unavailable(mo
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6284,7 +6284,7 @@ def test_doctor_with_pipeline_path_accepts_local_codex_login_status_from_shell_b
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6326,7 +6326,7 @@ def test_doctor_with_pipeline_path_accepts_local_codex_login_for_explicit_openai
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "explicit-openai.yaml", "--output", "summary"])
 
@@ -6376,7 +6376,7 @@ def test_doctor_with_pipeline_path_uses_codex_auth_failure_for_explicit_openai_p
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "explicit-openai.yaml", "--output", "summary"])
 
@@ -6431,7 +6431,7 @@ def test_doctor_with_custom_kimi_pipeline_reports_successful_local_agent_probes(
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6453,7 +6453,7 @@ def test_doctor_with_custom_kimi_pipeline_reports_successful_local_agent_probes(
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_init_export(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     fake_pipeline = SimpleNamespace(
         nodes=[
@@ -6471,7 +6471,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_init_
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6487,7 +6487,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_init_
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_split_shell_init_export(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     fake_pipeline = SimpleNamespace(
         nodes=[
@@ -6505,7 +6505,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_split_shell
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6545,7 +6545,7 @@ def test_doctor_with_pipeline_path_accepts_custom_kimi_provider_credentials_from
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6588,7 +6588,7 @@ def test_doctor_with_pipeline_path_accepts_custom_kimi_provider_env_base_url_cre
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6608,7 +6608,7 @@ def test_doctor_with_pipeline_path_accepts_custom_kimi_provider_env_base_url_cre
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_wrapper_export(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     fake_pipeline = SimpleNamespace(
         nodes=[
@@ -6624,7 +6624,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_wrapp
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6640,7 +6640,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_wrapp
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_prefix_env_wrapper(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     fake_pipeline = SimpleNamespace(
         nodes=[
@@ -6656,7 +6656,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_prefi
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6672,7 +6672,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_prefi
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_split_shell_wrapper_export(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     fake_pipeline = SimpleNamespace(
         nodes=[
@@ -6688,7 +6688,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_split_shell
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6706,7 +6706,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_sourced_she
     home.mkdir()
     (home / ".anthropic.env").write_text("export ANTHROPIC_API_KEY=test-shell-key\n", encoding="utf-8")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(subprocess, "run", _completed_subprocess())
     fake_pipeline = SimpleNamespace(
@@ -6726,7 +6726,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_sourced_she
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6745,7 +6745,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_bash_env_fi
     home.mkdir()
     (home / "auth.env").write_text("export ANTHROPIC_API_KEY=test-shell-key\n", encoding="utf-8")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     fake_pipeline = SimpleNamespace(
         nodes=[
@@ -6762,7 +6762,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_bash_env_fi
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6783,7 +6783,7 @@ def test_doctor_with_pipeline_path_rejects_provider_credentials_from_interactive
     home.mkdir()
     (home / "auth.env").write_text("export ANTHROPIC_API_KEY=test-shell-key\n", encoding="utf-8")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     fake_pipeline = SimpleNamespace(
         nodes=[
@@ -6802,7 +6802,7 @@ def test_doctor_with_pipeline_path_rejects_provider_credentials_from_interactive
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6822,7 +6822,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_node_env_ba
     home.mkdir()
     (home / "auth.env").write_text("export ANTHROPIC_API_KEY=test-shell-key\n", encoding="utf-8")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     fake_pipeline = SimpleNamespace(
         nodes=[
@@ -6839,7 +6839,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_node_env_ba
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6854,7 +6854,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_node_env_ba
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_login_shell_startup(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(subprocess, "run", _completed_subprocess())
     fake_pipeline = SimpleNamespace(
@@ -6875,7 +6875,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_login_shell
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6890,7 +6890,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_login_shell
 def test_doctor_with_pipeline_path_requires_default_claude_credentials_without_explicit_provider(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     fake_pipeline = SimpleNamespace(
         nodes=[
@@ -6905,7 +6905,7 @@ def test_doctor_with_pipeline_path_requires_default_claude_credentials_without_e
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6922,7 +6922,7 @@ def test_doctor_with_pipeline_path_requires_default_claude_credentials_without_e
 def test_doctor_with_pipeline_path_fails_when_node_env_clears_current_provider_api_key(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.setenv("ANTHROPIC_API_KEY", "ambient-anthropic-key")
     fake_pipeline = SimpleNamespace(
         nodes=[
@@ -6937,7 +6937,7 @@ def test_doctor_with_pipeline_path_fails_when_node_env_clears_current_provider_a
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6956,7 +6956,7 @@ def test_doctor_with_pipeline_path_fails_when_node_env_clears_current_provider_a
 def test_doctor_with_pipeline_path_fails_when_provider_env_clears_current_provider_api_key(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.setenv("ANTHROPIC_API_KEY", "ambient-anthropic-key")
     fake_pipeline = SimpleNamespace(
         nodes=[
@@ -6976,7 +6976,7 @@ def test_doctor_with_pipeline_path_fails_when_provider_env_clears_current_provid
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -6995,7 +6995,7 @@ def test_doctor_with_pipeline_path_fails_when_provider_env_clears_current_provid
 def test_doctor_with_pipeline_path_fails_when_shell_wrapper_clears_current_provider_api_key(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.setenv("ANTHROPIC_API_KEY", "ambient-anthropic-key")
     fake_pipeline = SimpleNamespace(
         nodes=[
@@ -7013,7 +7013,7 @@ def test_doctor_with_pipeline_path_fails_when_shell_wrapper_clears_current_provi
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -7066,7 +7066,7 @@ def test_doctor_with_pipeline_path_warns_when_login_startup_provider_probe_times
             raise subprocess.TimeoutExpired(cmd=args[0], timeout=kwargs["timeout"])
         return subprocess.CompletedProcess(args=args[0], returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(subprocess, "run", _timeout)
     fake_pipeline = SimpleNamespace(
@@ -7087,7 +7087,7 @@ def test_doctor_with_pipeline_path_warns_when_login_startup_provider_probe_times
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -7114,7 +7114,7 @@ def test_doctor_with_pipeline_path_uses_target_cwd_for_relative_login_startup_so
         encoding="utf-8",
     )
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
 
@@ -7149,7 +7149,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_login_shell
             stderr="",
         )
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(subprocess, "run", _run)
     fake_pipeline = SimpleNamespace(
@@ -7170,7 +7170,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_login_shell
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -7242,7 +7242,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_wrapp
             )
         return subprocess.CompletedProcess(args=args[0], returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(subprocess, "run", _run)
     fake_pipeline = SimpleNamespace(
@@ -7263,7 +7263,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_wrapp
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -7292,7 +7292,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_interactive
             stderr="",
         )
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(subprocess, "run", _run)
     fake_pipeline = SimpleNamespace(
@@ -7314,7 +7314,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_interactive
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -7341,7 +7341,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_interactive
             stderr="",
         )
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(subprocess, "run", _run)
     fake_pipeline = SimpleNamespace(
@@ -7362,7 +7362,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_interactive
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -7378,7 +7378,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_interactive
 def test_doctor_with_pipeline_path_accepts_kimi_api_key_from_node_env(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     monkeypatch.setattr(subprocess, "run", _completed_subprocess())
     monkeypatch.delenv("KIMI_API_KEY", raising=False)
     fake_pipeline = SimpleNamespace(
@@ -7392,7 +7392,7 @@ def test_doctor_with_pipeline_path_accepts_kimi_api_key_from_node_env(monkeypatc
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -7433,7 +7433,7 @@ def test_doctor_with_pipeline_path_fails_when_kimi_cli_is_unavailable(monkeypatc
         ],
         working_path=Path.cwd(),
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "summary"])
 
@@ -7452,9 +7452,9 @@ def test_doctor_with_pipeline_path_fails_when_kimi_cli_is_unavailable(monkeypatc
 def test_doctor_with_pipeline_path_supports_json_output(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     fake_pipeline = SimpleNamespace(nodes=[])
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "json"])
 
@@ -7477,9 +7477,9 @@ def test_doctor_with_pipeline_path_supports_json_output(monkeypatch):
 def test_doctor_with_pipeline_path_supports_json_summary_output(monkeypatch):
     captured: dict[str, object] = {}
 
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
     fake_pipeline = SimpleNamespace(nodes=[])
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "json-summary"])
 
@@ -7505,7 +7505,7 @@ def test_doctor_with_pipeline_path_reports_auto_preflight_metadata_in_json(monke
 
     _mock_custom_kimi_preflight(monkeypatch)
     monkeypatch.setattr(subprocess, "run", _completed_subprocess())
-    monkeypatch.setattr(agentflow.cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
+    monkeypatch.setattr(cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
     fake_pipeline = SimpleNamespace(
         nodes=[
             SimpleNamespace(
@@ -7515,7 +7515,7 @@ def test_doctor_with_pipeline_path_reports_auto_preflight_metadata_in_json(monke
             )
         ]
     )
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
+    monkeypatch.setattr(cli, "_load_pipeline", _capture_pipeline_loader(captured, fake_pipeline))
 
     result = runner.invoke(app, ["doctor", "custom-smoke.yaml", "--output", "json"])
 
@@ -7782,7 +7782,7 @@ def test_doctor_with_custom_kimi_pipeline_uses_pipeline_specific_preflight(tmp_p
     )
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="failed",
@@ -7792,11 +7792,11 @@ def test_doctor_with_custom_kimi_pipeline_uses_pipeline_specific_preflight(tmp_p
             ],
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "build_local_kimi_bootstrap_doctor_report", _doctor_report)
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_kimi_readiness_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_codex_readiness_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_codex_auth_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_local_kimi_bootstrap_doctor_report", _doctor_report)
+    monkeypatch.setattr(cli, "build_pipeline_local_kimi_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_codex_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_codex_auth_checks", lambda pipeline: [])
 
     result = runner.invoke(app, ["doctor", str(pipeline_path), "--output", "summary"])
 
@@ -7816,9 +7816,9 @@ def test_doctor_with_local_kimi_provider_pipeline_reports_auto_preflight_enabled
         encoding="utf-8",
     )
 
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_pipeline_local_claude_readiness_info_checks",
         lambda pipeline: [DoctorCheck(name="claude_ready", status="ok", detail="ready")],
     )
@@ -7842,9 +7842,9 @@ def test_doctor_with_local_kimi_agent_pipeline_reports_auto_preflight_enabled(tm
         encoding="utf-8",
     )
 
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_kimi_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_kimi_readiness_checks", lambda pipeline: [])
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_pipeline_local_kimi_readiness_info_checks",
         lambda pipeline: [DoctorCheck(name="kimi_ready", status="ok", detail="ready")],
     )
@@ -7869,21 +7869,21 @@ def test_run_with_local_kimi_provider_pipeline_auto_preflight_runs_pipeline_chec
     )
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: (_ for _ in ()).throw(AssertionError("bundled smoke doctor should not run")),
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_kimi_bootstrap_doctor_report",
         lambda: (_ for _ in ()).throw(AssertionError("kimi bootstrap doctor should not run")),
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_pipeline_local_claude_readiness_checks",
         lambda pipeline: [DoctorCheck(name="claude_ready", status="failed", detail="missing local claude")],
     )
-    monkeypatch.setattr(agentflow.cli, "_run_pipeline", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("run should not start")))
+    monkeypatch.setattr(cli, "_run_pipeline", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("run should not start")))
     monkeypatch.setenv("ANTHROPIC_API_KEY", "super-secret")
 
     result = runner.invoke(app, ["run", str(pipeline_path), "--output", "summary"])
@@ -7905,21 +7905,21 @@ def test_run_with_custom_kimi_provider_api_key_env_pipeline_auto_preflight_runs_
     )
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: (_ for _ in ()).throw(AssertionError("bundled smoke doctor should not run")),
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_kimi_bootstrap_doctor_report",
         lambda: (_ for _ in ()).throw(AssertionError("kimi bootstrap doctor should not run")),
     )
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_pipeline_local_claude_readiness_checks",
         lambda pipeline: [DoctorCheck(name="claude_ready", status="failed", detail="missing local claude")],
     )
-    monkeypatch.setattr(agentflow.cli, "_run_pipeline", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("run should not start")))
+    monkeypatch.setattr(cli, "_run_pipeline", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("run should not start")))
     monkeypatch.setenv("KIMI_PROXY_KEY", "super-secret")
 
     result = runner.invoke(app, ["run", str(pipeline_path), "--output", "summary"])
@@ -7939,7 +7939,7 @@ def test_doctor_with_pipeline_path_warns_when_local_launch_inherits_current_base
         json.dumps({"name": 'doctor-base-url-inheritance', "working_dir": '.', "nodes": [{"id": 'review', "agent": 'claude', "prompt": 'hi'}]}),
         encoding="utf-8",
     )
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
     monkeypatch.setenv("ANTHROPIC_API_KEY", "super-secret")
     monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://open.bigmodel.cn/api/anthropic")
 
@@ -7959,7 +7959,7 @@ def test_doctor_with_pipeline_path_warns_when_explicit_claude_provider_leaves_ba
         json.dumps({"name": 'doctor-explicit-claude-provider-base-url-inheritance', "working_dir": '.', "nodes": [{"id": 'review', "agent": 'claude', "provider": {"name": 'anthropic', "api_key_env": 'ANTHROPIC_API_KEY'}, "prompt": 'hi'}]}),
         encoding="utf-8",
     )
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
     monkeypatch.setenv("ANTHROPIC_API_KEY", "super-secret")
     monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://open.bigmodel.cn/api/anthropic")
 
@@ -7979,8 +7979,8 @@ def test_doctor_with_pipeline_path_warns_when_explicit_codex_provider_leaves_bas
         json.dumps({"name": 'doctor-explicit-codex-provider-base-url-inheritance', "working_dir": '.', "nodes": [{"id": 'plan', "agent": 'codex', "provider": {"name": 'openai', "api_key_env": 'OPENAI_API_KEY', "wire_api": 'responses'}, "prompt": 'hi'}]}),
         encoding="utf-8",
     )
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_codex_readiness_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_codex_auth_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_codex_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_codex_auth_checks", lambda pipeline: [])
     monkeypatch.setenv("OPENAI_API_KEY", "super-secret")
     monkeypatch.setenv("OPENAI_BASE_URL", "https://oai-relay.ctf.so/openai")
 
@@ -8006,7 +8006,7 @@ def test_doctor_with_pipeline_path_uses_node_home_for_base_url_bootstrap_detecti
         json.dumps({"name": 'doctor-home-base-url-bootstrap', "working_dir": '.', "nodes": [{"id": 'review', "agent": 'claude', "prompt": 'hi', "env": {"HOME": str(launch_home)}, "target": {"kind": 'local', "shell": 'bash', "shell_login": True}}]}),
         encoding="utf-8",
     )
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
     monkeypatch.setenv("ANTHROPIC_API_KEY", "super-secret")
     monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://open.bigmodel.cn/api/anthropic")
 
@@ -8025,8 +8025,8 @@ def test_doctor_with_pipeline_path_reports_when_node_env_clears_current_base_url
         json.dumps({"name": 'doctor-base-url-cleared', "working_dir": '.', "nodes": [{"id": 'plan', "agent": 'codex', "prompt": 'hi', "env": {"OPENAI_BASE_URL": ''}}]}),
         encoding="utf-8",
     )
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_codex_readiness_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_codex_auth_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_codex_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_codex_auth_checks", lambda pipeline: [])
     monkeypatch.setenv("OPENAI_BASE_URL", "https://oai-relay.ctf.so/openai")
 
     result = runner.invoke(app, ["doctor", str(pipeline_path), "--output", "summary"])
@@ -8045,7 +8045,7 @@ def test_doctor_with_pipeline_path_json_includes_launch_env_inheritance_context(
         json.dumps({"name": 'doctor-base-url-inheritance-json', "working_dir": '.', "nodes": [{"id": 'review', "agent": 'claude', "prompt": 'hi'}]}),
         encoding="utf-8",
     )
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_claude_readiness_checks", lambda pipeline: [])
     monkeypatch.setenv("ANTHROPIC_API_KEY", "super-secret")
     monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://open.bigmodel.cn/api/anthropic")
 
@@ -8076,8 +8076,8 @@ def test_doctor_without_path_reports_bundled_smoke_override_as_ok(tmp_path, monk
         encoding="utf-8",
     )
     _disable_local_readiness_probes(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: str(pipeline_path))
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: str(pipeline_path))
     monkeypatch.setenv("ANTHROPIC_API_KEY", "super-secret")
     monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://open.bigmodel.cn/api/anthropic")
 
@@ -8102,14 +8102,14 @@ def test_doctor_without_path_applies_bundled_pipeline_shell_checks(tmp_path, mon
     )
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="ok",
             checks=[DoctorCheck(name="kimi_shell_helper", status="ok", detail="ready")],
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: str(pipeline_path))
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: str(pipeline_path))
 
     result = runner.invoke(app, ["doctor", "--output", "json"])
 
@@ -8140,11 +8140,11 @@ def test_doctor_without_path_applies_bundled_pipeline_shell_checks(tmp_path, mon
 def test_doctor_can_include_shell_bridge_in_json_output(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     _disable_local_readiness_probes(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
-    monkeypatch.setattr(agentflow.cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
+    monkeypatch.setattr(cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_bash_login_shell_bridge_recommendation",
         lambda: ShellBridgeRecommendation(
             target="~/.bash_profile",
@@ -8186,11 +8186,11 @@ def test_doctor_can_include_shell_bridge_in_json_output(monkeypatch):
 def test_doctor_can_include_shell_bridge_in_summary_output(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     _disable_local_readiness_probes(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
-    monkeypatch.setattr(agentflow.cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
+    monkeypatch.setattr(cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_bash_login_shell_bridge_recommendation",
         lambda: ShellBridgeRecommendation(
             target="~/.bash_profile",
@@ -8219,10 +8219,10 @@ def test_doctor_can_include_shell_bridge_in_summary_output(monkeypatch):
 def test_doctor_shell_bridge_summary_reports_when_no_fix_is_needed(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     _disable_local_readiness_probes(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
-    monkeypatch.setattr(agentflow.cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_bash_login_shell_bridge_recommendation", lambda: None)
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
+    monkeypatch.setattr(cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_bash_login_shell_bridge_recommendation", lambda: None)
 
     result = runner.invoke(app, ["doctor", "--output", "summary", "--shell-bridge"])
 
@@ -8238,8 +8238,8 @@ def test_doctor_shell_bridge_summary_reports_when_no_fix_is_needed(monkeypatch):
 
 def test_doctor_fails_when_launch_inspection_errors(monkeypatch):
     _disable_local_readiness_probes(monkeypatch)
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report())
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", _doctor_report)
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
     monkeypatch.setattr(
         agentflow.inspection,
         "build_launch_inspection",
@@ -8337,7 +8337,7 @@ def test_check_local_warns_for_custom_home_login_startup(tmp_path, monkeypatch):
             return _completed_run(run_id, pipeline_name="doctor-noisy-shell-bridge")
 
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_build_runtime",
         lambda runs_dir, max_concurrent_runs: (
             SimpleNamespace(run_dir=lambda run_id: Path(runs_dir) / run_id),
@@ -8436,7 +8436,7 @@ def test_run_auto_preflight_stops_when_auth_depends_on_login_startup(tmp_path, m
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_run_pipeline",
         lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("run should not start")),
     )
@@ -8481,7 +8481,7 @@ def test_run_auto_preflight_fails_closed_when_launch_inspection_errors(tmp_path,
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "_run_pipeline",
         lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("run should not start")),
     )
@@ -8584,7 +8584,7 @@ def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
     return original_import(name, globals, locals, fromlist, level)
 
 builtins.__import__ = fake_import
-cli_module = importlib.import_module(\"agentflow.cli\")
+cli_module = importlib.import_module(\"cli\")
 cli_module.build_local_smoke_doctor_report = lambda: DoctorReport(
     status=\"ok\",
     checks=[DoctorCheck(name=\"kimi_shell_helper\", status=\"ok\", detail=\"ready\")],
@@ -8630,8 +8630,8 @@ def test_run_command_executes_local_kimi_node_when_pipeline_lives_outside_repo(t
     )
     monkeypatch.setenv("AGENTFLOW_KIMI_MOCK_RESPONSE", "kimi ok")
     monkeypatch.setenv("KIMI_API_KEY", "super-secret")
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_kimi_readiness_checks", lambda pipeline: [])
-    monkeypatch.setattr(agentflow.cli, "build_pipeline_local_kimi_readiness_info_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_kimi_readiness_checks", lambda pipeline: [])
+    monkeypatch.setattr(cli, "build_pipeline_local_kimi_readiness_info_checks", lambda pipeline: [])
 
     result = runner.invoke(app, ["run", str(pipeline_path), "--output", "summary"])
 
@@ -8643,11 +8643,11 @@ def test_run_command_executes_local_kimi_node_when_pipeline_lives_outside_repo(t
 
 
 def test_smoke_stops_when_bundled_preflight_fails(monkeypatch):
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing"))
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing"))
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
     monkeypatch.setenv("ANTHROPIC_API_KEY", "super-secret")
     monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://open.bigmodel.cn/api/anthropic")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: (_ for _ in ()).throw(AssertionError("pipeline should not load")))
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: (_ for _ in ()).throw(AssertionError("pipeline should not load")))
 
     result = runner.invoke(app, ["smoke"])
 
@@ -8657,7 +8657,7 @@ def test_smoke_stops_when_bundled_preflight_fails(monkeypatch):
 
 def test_smoke_failed_preflight_includes_shell_bridge_when_available(monkeypatch):
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="failed",
@@ -8667,9 +8667,9 @@ def test_smoke_failed_preflight_includes_shell_bridge_when_available(monkeypatch
             ],
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: (_ for _ in ()).throw(AssertionError("pipeline should not load")))
+    monkeypatch.setattr(cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: (_ for _ in ()).throw(AssertionError("pipeline should not load")))
 
     result = runner.invoke(app, ["smoke"])
 
@@ -8695,7 +8695,7 @@ def test_smoke_failed_preflight_uses_pipeline_shell_bridge_for_custom_home(tmp_p
     _reject_bundled_smoke_doctor(monkeypatch)
     _disable_local_readiness_probes(monkeypatch)
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_kimi_bootstrap_doctor_report",
         lambda: DoctorReport(
             status="failed",
@@ -8728,9 +8728,9 @@ def test_smoke_failed_preflight_uses_pipeline_shell_bridge_for_custom_home(tmp_p
 
 
 def test_smoke_failed_preflight_honors_json_output(monkeypatch):
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing"))
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: (_ for _ in ()).throw(AssertionError("pipeline should not load")))
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing"))
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: (_ for _ in ()).throw(AssertionError("pipeline should not load")))
 
     result = runner.invoke(app, ["smoke", "--output", "json"])
 
@@ -8743,7 +8743,7 @@ def test_smoke_failed_preflight_honors_json_output(monkeypatch):
 
 def test_smoke_failed_preflight_includes_shell_bridge_json_when_available(monkeypatch):
     monkeypatch.setattr(
-        agentflow.cli,
+        cli,
         "build_local_smoke_doctor_report",
         lambda: DoctorReport(
             status="failed",
@@ -8753,9 +8753,9 @@ def test_smoke_failed_preflight_includes_shell_bridge_json_when_available(monkey
             ],
         ),
     )
-    monkeypatch.setattr(agentflow.cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: (_ for _ in ()).throw(AssertionError("pipeline should not load")))
+    monkeypatch.setattr(cli, "build_bash_login_shell_bridge_recommendation", _shell_bridge_recommendation)
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: (_ for _ in ()).throw(AssertionError("pipeline should not load")))
 
     result = runner.invoke(app, ["smoke", "--output", "json"])
 
@@ -8771,9 +8771,9 @@ def test_smoke_failed_preflight_includes_shell_bridge_json_when_available(monkey
 
 
 def test_smoke_failed_preflight_honors_json_summary_output(monkeypatch):
-    monkeypatch.setattr(agentflow.cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing"))
-    monkeypatch.setattr(agentflow.cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
-    monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: (_ for _ in ()).throw(AssertionError("pipeline should not load")))
+    monkeypatch.setattr(cli, "build_local_smoke_doctor_report", lambda: _doctor_report(status="failed", detail="missing"))
+    monkeypatch.setattr(cli, "default_smoke_pipeline_path", lambda: "examples/local-real-agents-kimi-smoke.yaml")
+    monkeypatch.setattr(cli, "_load_pipeline", lambda path: (_ for _ in ()).throw(AssertionError("pipeline should not load")))
 
     result = runner.invoke(app, ["smoke", "--output", "json-summary"])
 

@@ -347,7 +347,7 @@ class LocalRunner(Runner):
                     if not task.done():
                         task.cancel()
                         with suppress(asyncio.CancelledError):
-                            await task
+                            _ = await task
 
         if timed_out:
             await self._terminate_with_fallback(process, wait_task)
@@ -362,7 +362,7 @@ class LocalRunner(Runner):
         else:
             await _drain_streams()
             if not wait_task.done():
-                await wait_task
+                _ = await wait_task
 
         if timed_out:
             exit_code = 124

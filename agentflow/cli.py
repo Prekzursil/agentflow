@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 import json
-import subprocess
 import sys
 from dataclasses import dataclass, replace
 from datetime import datetime
@@ -49,9 +48,7 @@ from agentflow.local_shell import (
     shell_init_uses_kimi_helper,
     shell_template_exported_env_var_value_before_command,
     target_bash_home,
-    target_bash_login_startup_warning,
     target_uses_interactive_bash,
-    target_uses_login_bash,
 )
 from agentflow.prepared import resolve_local_workdir
 from agentflow.specs import AgentKind, LocalTarget, PipelineSpec, provider_uses_kimi_anthropic_auth, resolve_provider
@@ -1368,7 +1365,6 @@ def _pipeline_provider_credential_checks(pipeline: object) -> list[DoctorCheck]:
             )
             continue
 
-        provider_detail = f" provider `{provider_name}`" if provider_name else ""
         checks.append(
             DoctorCheck(
                 name="provider_credentials",

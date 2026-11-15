@@ -17,6 +17,6 @@ with Graph("ecs-fargate-demo", working_dir=".", concurrency=2) as dag:
         task_id="review",
         prompt="Review: {{ nodes.task.output }}",
     )
-    task >> review
+    _ = task >> review
 
 print(dag.to_json())

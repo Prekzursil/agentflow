@@ -47,7 +47,7 @@ with Graph("test-gap-analysis", working_dir=".", concurrency=6) as dag:
         ),
     )
 
-    analyze >> suggest
-    [analyze, suggest] >> prioritize
+    _ = analyze >> suggest
+    _ = [analyze, suggest] >> prioritize
 
 print(dag.to_json())

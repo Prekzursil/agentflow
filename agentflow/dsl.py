@@ -58,7 +58,7 @@ class NodeBuilder:
             for item in other:
                 self.depends_on.append(item.id)
             return self
-        raise TypeError(f"unsupported dependency source {type(other)!r}")
+        return NotImplemented
 
     def to_payload(self) -> dict[str, Any]:
         return {

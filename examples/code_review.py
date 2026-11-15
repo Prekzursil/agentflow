@@ -46,7 +46,7 @@ with Graph("code-review-example", working_dir=".", concurrency=6) as dag:
         ),
     )
 
-    scan >> review
-    [scan, review] >> merge
+    _ = scan >> review
+    _ = [scan, review] >> merge
 
 print(dag.to_json())

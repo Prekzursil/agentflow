@@ -129,8 +129,8 @@ def test_airflow_like_dag_builds_dependencies():
         implement = claude(task_id="implement", prompt="implement")
         review = kimi(task_id="review", prompt="review")
         final = codex(task_id="merge", prompt="merge")
-        plan >> [implement, review]
-        [implement, review] >> final
+        _ = plan >> [implement, review]
+        _ = [implement, review] >> final
 
     spec = dag.to_spec()
     nodes = spec.node_map
@@ -201,8 +201,8 @@ def test_airflow_like_dag_supports_pipeline_defaults_and_count_fanout():
             4,
         )
         final = codex(task_id="merge", prompt="merge")
-        prepare >> fuzzer
-        fuzzer >> final
+        _ = prepare >> fuzzer
+        _ = fuzzer >> final
 
     payload = dag.to_payload()
     spec = dag.to_spec()
@@ -279,9 +279,9 @@ def test_airflow_like_dag_supports_matrix_and_batch_merge():
             size=2,
         )
         final = codex(task_id="merge", prompt="merge")
-        init >> fuzzer
-        fuzzer >> batch_merge
-        batch_merge >> final
+        _ = init >> fuzzer
+        _ = fuzzer >> batch_merge
+        _ = batch_merge >> final
 
     spec = dag.to_spec()
     nodes = spec.node_map
@@ -346,9 +346,9 @@ def test_airflow_like_dag_supports_grouped_merge():
             by=["target", "corpus"],
         )
         final = codex(task_id="merge", prompt="merge")
-        init >> fuzzer
-        fuzzer >> family_merge
-        family_merge >> final
+        _ = init >> fuzzer
+        _ = fuzzer >> family_merge
+        _ = family_merge >> final
 
     spec = dag.to_spec()
     nodes = spec.node_map

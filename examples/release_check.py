@@ -24,6 +24,6 @@ with Graph("release-check", working_dir=".", concurrency=3) as dag:
         ),
     )
 
-    [tests, security, changelog] >> gate
+    _ = [tests, security, changelog] >> gate
 
 print(dag.to_json())

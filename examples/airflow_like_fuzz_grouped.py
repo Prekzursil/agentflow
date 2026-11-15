@@ -165,8 +165,8 @@ with Graph(
         ),
     )
 
-    init >> fuzzer
-    fuzzer >> family_merge
-    family_merge >> final
+    _ = init >> fuzzer
+    _ = fuzzer >> family_merge
+    _ = family_merge >> final
 
 print(dag.to_json())

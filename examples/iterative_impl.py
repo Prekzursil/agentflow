@@ -35,8 +35,8 @@ with Graph("iterative-implementation", max_iterations=5) as g:
         ),
     )
 
-    write >> review
+    _ = write >> review
     review.on_failure >> write  # loop until LGTM
-    review >> summary           # proceed to summary on success
+    _ = review >> summary           # proceed to summary on success
 
 print(g.to_json())
