@@ -13,7 +13,7 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 # escaping stays off; configured explicitly through select_autoescape.
 _TEMPLATE_ENV = Environment(
     undefined=StrictUndefined,
-    autoescape=select_autoescape(default=False, enabled_extensions=()),
+    autoescape=select_autoescape(default_for_string=False, default=False, enabled_extensions=()),
     trim_blocks=True,
     lstrip_blocks=True,
 )
