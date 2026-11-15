@@ -6,7 +6,7 @@ from agentflow import cli
 import pytest
 from typer.testing import CliRunner
 
-from cli import app
+from agentflow.cli import app
 
 runner = CliRunner()
 
