@@ -14,7 +14,8 @@ from typer.testing import CliRunner
 import agentflow.cli
 import agentflow.inspection
 import agentflow.local_shell
-from agentflow.cli import app, _render_doctor_summary
+app = agentflow.cli.app
+_render_doctor_summary = agentflow.cli._render_doctor_summary
 from agentflow.doctor import (
     DoctorCheck,
     DoctorReport,
