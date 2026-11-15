@@ -41,6 +41,7 @@ def _capture_pipeline_loader(captured: dict[str, object], fake_pipeline: object)
     return _load
 
 
+@pytest.mark.local_shell_env
 def test_stream_supports_tty_summary_treats_click_testing_streams_as_terminal():
     probe_app = typer.Typer(add_completion=False)
 
@@ -473,6 +474,7 @@ def test_init_command_rejects_invalid_integer_template_setting():
     assert "`shards` to be an integer" in result.stderr
 
 
+@pytest.mark.local_shell_env
 def test_init_command_rejects_template_settings_for_static_template():
     result = runner.invoke(app, ["init", "--template", "pipeline", "--set", "shards=64"])
 
@@ -531,6 +533,7 @@ def test_render_doctor_summary_appends_bash_startup_summary_suffix():
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_command_json_preserves_bash_startup_context(monkeypatch):
     monkeypatch.setattr(agentflow.cli, "_load_pipeline", lambda path: _bundled_kimi_smoke_pipeline())
     monkeypatch.setattr(agentflow.cli, "_pipeline_launch_inspection_nodes", lambda pipeline: [])
@@ -1207,6 +1210,7 @@ def test_inspect_command_merges_extra_shell_init_with_kimi_bootstrap_shorthand(t
     ]
 
 
+@pytest.mark.local_shell_env
 def test_inspect_command_summary_notes_when_launch_env_overrides_current_base_url(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -1395,6 +1399,7 @@ def test_inspect_command_summary_redacts_sensitive_launch_env_override_details(t
     assert not payload["nodes"][0].get("warnings")
 
 
+@pytest.mark.local_shell_env
 def test_inspect_command_summary_reports_bootstrap_auth_override_for_current_secret(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -1418,6 +1423,7 @@ def test_inspect_command_summary_reports_bootstrap_auth_override_for_current_sec
     assert not payload["nodes"][0].get("warnings")
 
 
+@pytest.mark.local_shell_env
 def test_inspect_command_summary_keeps_bootstrap_auth_override_when_kimi_base_url_already_matches(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -1441,6 +1447,7 @@ def test_inspect_command_summary_keeps_bootstrap_auth_override_when_kimi_base_ur
     assert not payload["nodes"][0].get("warnings")
 
 
+@pytest.mark.local_shell_env
 def test_inspect_command_summary_reports_bootstrap_auth_override_for_launch_secret(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -1863,6 +1870,7 @@ def test_inspect_command_summary_treats_anthropic_provider_kimi_bootstrap_as_aut
     assert payload["nodes"][0]["auth"] == "`ANTHROPIC_API_KEY` via `target.bootstrap` (`kimi` helper)"
 
 
+@pytest.mark.local_shell_env
 def test_inspect_command_summary_reports_kimi_bootstrap_base_url_override_for_anthropic_provider(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -2177,6 +2185,7 @@ def test_inspect_command_accepts_bash_env_wrapper_that_sources_helper_file(tmp_p
     assert payload["nodes"][0].get("warnings") is None
 
 
+@pytest.mark.local_shell_env
 def test_inspect_command_json_summary_includes_kimi_shell_init_warning(tmp_path):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -2207,6 +2216,7 @@ def test_inspect_command_warns_when_explicit_kimi_shell_wrapper_is_not_interacti
     assert "Add `-i`, set `target.shell_interactive: true`, or use `bash -lic`." in result.stdout
 
 
+@pytest.mark.local_shell_env
 def test_inspect_command_detects_eval_style_kimi_wrapper_in_auto_preflight(tmp_path):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -2229,6 +2239,7 @@ def test_inspect_command_detects_eval_style_kimi_wrapper_in_auto_preflight(tmp_p
     ]
 
 
+@pytest.mark.local_shell_env
 def test_inspect_command_detects_backtick_eval_kimi_wrapper_in_auto_preflight(tmp_path):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -2251,6 +2262,7 @@ def test_inspect_command_detects_backtick_eval_kimi_wrapper_in_auto_preflight(tm
     ]
 
 
+@pytest.mark.local_shell_env
 def test_inspect_command_detects_export_kimi_wrapper_in_auto_preflight(tmp_path):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -2273,6 +2285,7 @@ def test_inspect_command_detects_export_kimi_wrapper_in_auto_preflight(tmp_path)
     ]
 
 
+@pytest.mark.local_shell_env
 def test_inspect_command_detects_env_var_eval_kimi_wrapper_in_auto_preflight(tmp_path):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -2404,6 +2417,7 @@ def test_inspect_command_surfaces_default_kimi_provider_in_json_summary(tmp_path
         ["smoke"],
     ],
 )
+@pytest.mark.local_shell_env
 def test_run_and_smoke_preflight_warn_when_kimi_shell_init_is_not_interactive(tmp_path, monkeypatch, command):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -2485,6 +2499,7 @@ def test_run_and_smoke_preflight_fail_when_kimi_shell_init_uses_non_bash_shell(t
         ["smoke"],
     ],
 )
+@pytest.mark.local_shell_env
 def test_run_and_smoke_preflight_accepts_kimi_shell_init_when_login_shell_already_loads_kimi(
     tmp_path,
     monkeypatch,
@@ -2585,6 +2600,7 @@ def test_run_and_smoke_preflight_skips_codex_auth_probe_when_kimi_shell_init_use
         ["smoke"],
     ],
 )
+@pytest.mark.local_shell_env
 def test_run_and_smoke_preflight_warn_when_explicit_kimi_shell_wrapper_is_not_interactive(tmp_path, monkeypatch, command):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -2626,6 +2642,7 @@ def test_run_and_smoke_preflight_warn_when_explicit_kimi_shell_wrapper_is_not_in
         ["smoke"],
     ],
 )
+@pytest.mark.local_shell_env
 def test_run_and_smoke_preflight_warn_when_eval_style_kimi_wrapper_is_not_interactive(tmp_path, monkeypatch, command):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -2667,6 +2684,7 @@ def test_run_and_smoke_preflight_warn_when_eval_style_kimi_wrapper_is_not_intera
         ["smoke"],
     ],
 )
+@pytest.mark.local_shell_env
 def test_run_and_smoke_preflight_warn_when_backtick_eval_kimi_wrapper_is_not_interactive(tmp_path, monkeypatch, command):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -2992,6 +3010,7 @@ def test_run_supports_json_summary_output(monkeypatch):
     }
 
 
+@pytest.mark.local_shell_env
 def test_runs_supports_summary_output(monkeypatch):
     recent = _completed_run("run-list-recent", pipeline_name="recent-pipeline")
     older = _completed_run("run-list-older", pipeline_name="older-pipeline", status="running")
@@ -3370,6 +3389,7 @@ def test_run_skips_preflight_for_custom_pipeline_in_auto_mode(monkeypatch):
     assert captured["wait_timeout"] is None
 
 
+@pytest.mark.local_shell_env
 def test_run_auto_runs_preflight_for_custom_pipeline_with_kimi_shell_init(monkeypatch):
     captured: dict[str, object] = {}
     doctor_calls = 0
@@ -4256,6 +4276,7 @@ def test_check_local_reuses_preflight_loaded_pipeline(monkeypatch):
     assert len(loaded_pipelines) == 1
 
 
+@pytest.mark.local_shell_env
 def test_check_local_defaults_to_json_when_not_tty(monkeypatch):
     class FakeOrchestrator:
         async def submit(self, pipeline: object):
@@ -4300,6 +4321,7 @@ def test_check_local_defaults_to_json_when_not_tty(monkeypatch):
     assert json.loads(result.stdout) == {"id": "check-local-auto-json", "status": "completed"}
 
 
+@pytest.mark.local_shell_env
 def test_check_local_auto_uses_json_when_stdout_is_redirected_but_stderr_is_tty(monkeypatch):
     class FakeOrchestrator:
         async def submit(self, pipeline: object):
@@ -4739,6 +4761,7 @@ def test_smoke_runs_when_bundled_preflight_warns(monkeypatch):
     assert captured["wait_timeout"] is None
 
 
+@pytest.mark.local_shell_env
 def test_smoke_keeps_expected_launch_env_override_out_of_preflight_warning_state(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "bundled-smoke.json"
     pipeline_path.write_text(
@@ -4961,6 +4984,7 @@ def test_smoke_warn_preflight_honors_json_output(monkeypatch):
     }
 
 
+@pytest.mark.local_shell_env
 def test_run_auto_warn_preflight_uses_json_when_stdout_is_redirected_but_stderr_is_tty(monkeypatch):
     captured: dict[str, object] = {}
 
@@ -5204,6 +5228,7 @@ def test_smoke_show_preflight_reports_pipeline_specific_readiness_for_custom_kim
     assert captured["wait_timeout"] is None
 
 
+@pytest.mark.local_shell_env
 def test_smoke_failed_preflight_for_custom_kimi_pipeline_includes_shell_bridge_when_available(monkeypatch):
     monkeypatch.setattr(
         agentflow.cli,
@@ -5349,6 +5374,7 @@ def test_smoke_auto_runs_preflight_for_custom_pipeline_with_kimi_agent(monkeypat
     assert captured["wait_timeout"] is None
 
 
+@pytest.mark.local_shell_env
 def test_smoke_auto_runs_preflight_for_custom_pipeline_with_explicit_kimi_shell_wrapper(monkeypatch):
     captured: dict[str, object] = {}
     doctor_calls = 0
@@ -5395,6 +5421,7 @@ def test_smoke_auto_runs_preflight_for_custom_pipeline_with_explicit_kimi_shell_
     assert captured["wait_timeout"] is None
 
 
+@pytest.mark.local_shell_env
 def test_smoke_auto_runs_preflight_for_custom_pipeline_with_backtick_eval_kimi_shell_wrapper(monkeypatch):
     captured: dict[str, object] = {}
     doctor_calls = 0
@@ -5690,6 +5717,7 @@ def test_doctor_outputs_json_report(monkeypatch):
     }
 
 
+@pytest.mark.local_shell_env
 def test_doctor_outputs_json_summary_report(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     _disable_local_readiness_probes(monkeypatch)
@@ -6421,6 +6449,7 @@ def test_doctor_with_custom_kimi_pipeline_reports_successful_local_agent_probes(
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_init_export(monkeypatch):
     captured: dict[str, object] = {}
 
@@ -6454,6 +6483,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_init_
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_split_shell_init_export(monkeypatch):
     captured: dict[str, object] = {}
 
@@ -6487,6 +6517,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_split_shell
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_accepts_custom_kimi_provider_credentials_from_shell_init_helper(monkeypatch):
     captured: dict[str, object] = {}
 
@@ -6530,6 +6561,7 @@ def test_doctor_with_pipeline_path_accepts_custom_kimi_provider_credentials_from
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_accepts_custom_kimi_provider_env_base_url_credentials_from_shell_init_helper(monkeypatch):
     captured: dict[str, object] = {}
 
@@ -6572,6 +6604,7 @@ def test_doctor_with_pipeline_path_accepts_custom_kimi_provider_env_base_url_cre
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_wrapper_export(monkeypatch):
     captured: dict[str, object] = {}
 
@@ -6603,6 +6636,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_wrapp
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_prefix_env_wrapper(monkeypatch):
     captured: dict[str, object] = {}
 
@@ -6634,6 +6668,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_shell_prefi
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_split_shell_wrapper_export(monkeypatch):
     captured: dict[str, object] = {}
 
@@ -6703,6 +6738,7 @@ def test_doctor_with_pipeline_path_accepts_provider_credentials_from_sourced_she
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_bash_env_file(monkeypatch, tmp_path):
     captured: dict[str, object] = {}
     home = tmp_path / "home"
@@ -6779,6 +6815,7 @@ def test_doctor_with_pipeline_path_rejects_provider_credentials_from_interactive
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_node_env_bash_env_file(monkeypatch, tmp_path):
     captured: dict[str, object] = {}
     home = tmp_path / "home"
@@ -6881,6 +6918,7 @@ def test_doctor_with_pipeline_path_requires_default_claude_credentials_without_e
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_fails_when_node_env_clears_current_provider_api_key(monkeypatch):
     captured: dict[str, object] = {}
 
@@ -6914,6 +6952,7 @@ def test_doctor_with_pipeline_path_fails_when_node_env_clears_current_provider_a
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_fails_when_provider_env_clears_current_provider_api_key(monkeypatch):
     captured: dict[str, object] = {}
 
@@ -6952,6 +6991,7 @@ def test_doctor_with_pipeline_path_fails_when_provider_env_clears_current_provid
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_fails_when_shell_wrapper_clears_current_provider_api_key(monkeypatch):
     captured: dict[str, object] = {}
 
@@ -7062,6 +7102,7 @@ def test_doctor_with_pipeline_path_warns_when_login_startup_provider_probe_times
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_uses_target_cwd_for_relative_login_startup_sources(tmp_path, monkeypatch):
     home = tmp_path / "home"
     home.mkdir()
@@ -7508,6 +7549,7 @@ def test_doctor_with_pipeline_path_reports_auto_preflight_metadata_in_json(monke
     }
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_reports_expected_launch_env_override_as_ok(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -7530,6 +7572,7 @@ def test_doctor_with_pipeline_path_reports_expected_launch_env_override_as_ok(tm
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_reports_bootstrap_auth_override_as_ok(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -7553,6 +7596,7 @@ def test_doctor_with_pipeline_path_reports_bootstrap_auth_override_as_ok(tmp_pat
     )
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_keeps_bootstrap_auth_override_when_kimi_base_url_already_matches(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -7590,6 +7634,7 @@ def test_doctor_with_pipeline_path_keeps_bootstrap_auth_override_when_kimi_base_
     ]
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_json_includes_launch_env_override_context(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -7639,6 +7684,7 @@ def test_doctor_with_pipeline_path_json_includes_launch_env_override_context(tmp
     ]
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_json_includes_bootstrap_auth_override_context(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -7688,6 +7734,7 @@ def test_doctor_with_pipeline_path_json_includes_bootstrap_auth_override_context
     ]
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_reports_bootstrap_auth_override_for_launch_secret(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -7726,6 +7773,7 @@ def test_doctor_with_pipeline_path_reports_bootstrap_auth_override_for_launch_se
     ]
 
 
+@pytest.mark.local_shell_env
 def test_doctor_with_custom_kimi_pipeline_uses_pipeline_specific_preflight(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "pipeline.json"
     pipeline_path.write_text(
@@ -8020,6 +8068,7 @@ def test_doctor_with_pipeline_path_json_includes_launch_env_inheritance_context(
     ]
 
 
+@pytest.mark.local_shell_env
 def test_doctor_without_path_reports_bundled_smoke_override_as_ok(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "bundled-smoke.json"
     pipeline_path.write_text(
@@ -8572,6 +8621,7 @@ print(json.dumps({\"exit_code\": result.exit_code, \"stdout\": result.stdout}))
     }
 
 
+@pytest.mark.local_shell_env
 def test_run_command_executes_local_kimi_node_when_pipeline_lives_outside_repo(tmp_path, monkeypatch):
     pipeline_path = tmp_path / "kimi-only.json"
     pipeline_path.write_text(

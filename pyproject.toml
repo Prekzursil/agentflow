@@ -35,4 +35,7 @@ packages = ["agentflow"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+markers = [
+    "local_shell_env: needs an interactive login shell with configured agent CLIs (developer machine); skipped in CI",
+]
 

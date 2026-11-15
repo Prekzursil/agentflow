@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import pytest
 import subprocess
 import textwrap
 from pathlib import Path
@@ -953,6 +954,7 @@ def test_pipeline_local_codex_auth_check_does_not_trust_ambient_key_when_shell_c
     assert len(commands) == 2
 
 
+@pytest.mark.local_shell_env
 def test_pipeline_local_kimi_readiness_check_reports_timeout(monkeypatch):
     pipeline = SimpleNamespace(
         nodes=[
