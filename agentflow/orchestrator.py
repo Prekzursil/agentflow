@@ -35,6 +35,9 @@ from agentflow.store import RunStore
 from agentflow.success import evaluate_success
 from agentflow.traces import create_trace_parser
 from agentflow.utils import looks_sensitive_key, redact_sensitive_shell_value, utcnow_iso
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 _TERMINAL_NODE_STATUSES = {
@@ -106,7 +109,7 @@ class Orchestrator:
                 runner = self.runners.get(kind)
                 runner._shared_manager = manager
             except KeyError:
-                pass
+                logger.debug("No runner registered for kind", exc_info=True)
 
     @staticmethod
     def _reset_node_for_cycle(record: "RunRecord", node_id: str, remaining: set[str]) -> None:
@@ -162,7 +165,7 @@ class Orchestrator:
                         for sid, count in shared_counts.items():
                             mgr.register_expected(sid, count)
                 except KeyError:
-                    pass
+                    logger.debug("No shared manager for kind", exc_info=True)
 
     async def submit(self, pipeline: PipelineSpec) -> RunRecord:
         """Create a queued run and start its background scheduler when a slot opens.
@@ -723,7 +726,7 @@ class Orchestrator:
                 try:
                     diff = get_worktree_diff(worktree_dir)
                 except Exception:
-                    pass
+                    logger.debug("Could not compute worktree diff", exc_info=True)
             # For remote nodes (SSH/EC2/ECS), diff is captured from the node output
             # if the node prompt asks for `git diff`. No automatic remote diff capture.
             if diff:
@@ -736,7 +739,7 @@ class Orchestrator:
                 try:
                     remove_worktree(pipeline.working_path, worktree_dir)
                 except Exception:
-                    pass
+                    logger.debug("Could not remove worktree", exc_info=True)
 
         await self.store.persist_run(run_id)
         if periodic_tick_number is not None:

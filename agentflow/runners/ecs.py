@@ -17,6 +17,9 @@ from agentflow.runners.base import (
     StreamCallback,
 )
 from agentflow.specs import NodeSpec
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ECSRunner(Runner):
@@ -36,7 +39,7 @@ class ECSRunner(Runner):
         try:
             ecr.create_repository(repositoryName=repo_name)
         except ecr.exceptions.RepositoryAlreadyExistsException:
-            pass
+            logger.debug("ECR repository already exists: %s", repo_name)
 
         image_uri = f"{account}.dkr.ecr.{region}.amazonaws.com/{repo_name}:latest"
 
@@ -80,7 +83,7 @@ class ECSRunner(Runner):
             if resp["clusters"] and resp["clusters"][0]["status"] == "ACTIVE":
                 return
         except Exception:
-            pass
+            logger.debug("Could not check cluster status", exc_info=True)
         ecs.create_cluster(clusterName=cluster_name)
 
     def _ensure_log_group(self, region: str, log_group: str) -> None:
@@ -90,7 +93,7 @@ class ECSRunner(Runner):
         try:
             logs.create_log_group(logGroupName=log_group)
         except logs.exceptions.ResourceAlreadyExistsException:
-            pass
+            logger.debug("Log group already exists: %s", log_group)
 
     def _ensure_execution_role(self, region: str) -> str:
         import boto3
@@ -229,7 +232,7 @@ class ECSRunner(Runner):
                             seen_tokens.add(token)
                             stdout_lines.append(event["message"].rstrip())
             except Exception:
-                pass
+                logger.debug("Failed to read a page of log events", exc_info=True)
 
             if status == "STOPPED":
                 # Wait for CloudWatch log propagation
@@ -251,7 +254,7 @@ class ECSRunner(Runner):
                                 seen_tokens.add(token)
                                 stdout_lines.append(event["message"].rstrip())
                 except Exception:
-                    pass
+                    logger.debug("Failed to read a page of log events", exc_info=True)
                 container = task.get("containers", [{}])[0]
                 exit_code = container.get("exitCode", 1)
                 reason = container.get("reason", "")
