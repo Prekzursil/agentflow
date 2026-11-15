@@ -51,6 +51,7 @@ def test_inspect_command_treats_interactive_bash_rcfile_as_auth_source(
 
 
 @pytest.mark.parametrize("option", ["--rcfile", "--init-file"])
+@pytest.mark.local_shell_env
 def test_doctor_with_pipeline_path_accepts_provider_credentials_from_interactive_bash_rcfile(
     tmp_path,
     monkeypatch,

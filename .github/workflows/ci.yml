@@ -27,5 +27,5 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]" pytest-timeout
-      - name: Run test suite (pseudo-TTY so interactive bash probes behave as on a dev machine)
-        run: script -qec "python -m pytest -v --timeout=90 --timeout-method=signal" /dev/null
+      - name: Run test suite (local_shell_env tests deselected: they need an interactive login shell with configured agent CLIs)
+        run: python -m pytest -v -m "not local_shell_env" --timeout=90 --timeout-method=signal

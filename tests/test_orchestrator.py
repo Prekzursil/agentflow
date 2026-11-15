@@ -671,6 +671,7 @@ async def test_orchestrator_reschedules_periodic_nodes_until_watched_fanout_sett
 
 
 @pytest.mark.asyncio
+@pytest.mark.local_shell_env
 async def test_orchestrator_periodic_nodes_can_cancel_and_rerun_watched_members_from_logs(tmp_path: Path):
     adapters = AdapterRegistry()
     adapters.register(AgentKind.CODEX, PeriodicControlAdapter())
