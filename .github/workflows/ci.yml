@@ -27,5 +27,5 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]" pytest-timeout
-      - name: Run test suite (local_shell_env tests deselected: they need an interactive login shell with configured agent CLIs)
+      - name: Run test suite (local_shell_env tests deselected - they need an interactive login shell with configured agent CLIs)
         run: python -m pytest -v -m "not local_shell_env" --timeout=90 --timeout-method=signal
