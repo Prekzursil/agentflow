@@ -30,7 +30,7 @@ with Graph("airflow-like-example", working_dir=".", concurrency=3) as dag:
         model="gpt-5-codex",
     )
 
-    plan >> [implement, review]
-    [implement, review] >> merge
+    _ = plan >> [implement, review]
+    _ = [implement, review] >> merge
 
 print(dag.to_json())

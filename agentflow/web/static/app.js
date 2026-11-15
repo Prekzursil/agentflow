@@ -682,28 +682,6 @@ function renderRuns() {
     else groups.Older.push(run);
   }
 
-  const renderProgress = (run) => {
-    if (String(run.status || "").toLowerCase() !== "running") return "";
-
-    const nodeIds = getRunNodeIds(run);
-    const totalNodes = nodeIds.length;
-    if (!totalNodes) return "";
-
-    const progressedNodes = nodeIds.filter((nodeId) => {
-      const status = String(run.nodes?.[nodeId]?.status || "pending").toLowerCase();
-      return !inactiveNodeStatuses.has(status);
-    }).length;
-    const progressPercent = Math.max(0, Math.min(100, (progressedNodes / totalNodes) * 100));
-
-    return `
-      <div class="runs-progress" aria-label="Run progress ${progressedNodes} of ${totalNodes} nodes">
-        <div class="runs-progress-track" aria-hidden="true">
-          <div class="runs-progress-fill" style="width:${progressPercent}%"></div>
-        </div>
-      </div>
-    `;
-  };
-
   const statusClass = (status) => {
     const normalizedStatus = String(status || "").toLowerCase();
     if (["completed"].includes(normalizedStatus)) return "completed";
@@ -984,7 +962,7 @@ function renderGraph(pipelineNodes = null, nodeStatusMap = null) {
     const viewBox = currentViewBox();
     const viewportAspect = rect.width / rect.height;
     const viewBoxAspect = viewBox.width / viewBox.height;
-    let scale = rect.width / viewBox.width;
+    let scale;
     let offsetX = 0;
     let offsetY = 0;
     if (viewportAspect > viewBoxAspect) {
@@ -2232,11 +2210,6 @@ async function renderDetail() {
       const title = trace?.title || trace?.kind || "Trace event";
       const traceKey = `${selectedNodeId}:${index}:${trace?.kind || "trace"}:${title}`;
       const isError = kind.includes("error") || String(title).toLowerCase().includes("error");
-      const dotColor = isError
-        ? "#ef4444"
-        : ["tool_call", "tool_use", "toolcall"].includes(kind)
-          ? "#3b82f6"
-          : "#94a3b8";
       let content = trace?.content ?? "";
       if (typeof content === "string") {
         const trimmed = content.trim();
@@ -2254,11 +2227,6 @@ async function renderDetail() {
         const output = item.aggregated_output ?? item.output ?? (trace?.kind === "item_completed" ? trace?.content ?? "" : "");
         const fileEdit = isFileEditCommand(command);
         const filename = fileEdit ? extractCommandFilename(command) : "";
-        const exitBadgeClass = exitCode === null || exitCode === undefined
-          ? ""
-          : Number(exitCode) === 0
-            ? "trace-pill-success"
-            : "trace-pill-failure";
 
         return `
           <div style="padding:8px 0;" data-trace-key="${escapeHtml(traceKey)}">

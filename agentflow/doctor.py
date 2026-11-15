@@ -25,7 +25,7 @@ from agentflow.local_shell import (
 )
 from agentflow.prepared import PreparedExecution, build_execution_paths
 from agentflow.runners.local import LocalRunner
-from agentflow.specs import AgentKind, LocalTarget, provider_uses_kimi_anthropic_auth, resolve_provider
+from agentflow.specs import AgentKind, LocalTarget, resolve_provider
 from agentflow.utils import looks_sensitive_key
 
 
@@ -1716,7 +1716,7 @@ def _run_kimi_toolchain_probe(home: Path | None = None) -> subprocess.CompletedP
             ),
             f'[ "${{#codex_auth_sources[@]}}" -gt 0 ] || exit {_CODEX_LOGIN_STATUS_AFTER_KIMI_FAILED_EXIT_CODE}',
             'codex_auth_label="${codex_auth_sources[0]}"',
-            'for codex_auth_source in "${codex_auth_sources[@]:1}"; do '
+            'for codex_auth_source in "${codex_auth_sources[@]:1}"; do',
             'codex_auth_label="${codex_auth_label} + ${codex_auth_source}"; '
             "done",
             'printf "CODEX_AUTH=%s\\n" "$codex_auth_label"',

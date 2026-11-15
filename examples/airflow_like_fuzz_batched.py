@@ -159,8 +159,8 @@ with Graph(
         ),
     )
 
-    init >> [fuzzer, monitor]
-    fuzzer >> batch_merge
-    [batch_merge, monitor] >> final
+    _ = init >> [fuzzer, monitor]
+    _ = fuzzer >> batch_merge
+    _ = [batch_merge, monitor] >> final
 
 print(dag.to_json())

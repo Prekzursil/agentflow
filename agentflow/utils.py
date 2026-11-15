@@ -6,10 +6,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 
-_TEMPLATE_ENV = Environment(undefined=StrictUndefined, autoescape=False, trim_blocks=True, lstrip_blocks=True)
+# Templates render prompts consumed by LLM agents (not browsers), so HTML
+# escaping stays off; configured explicitly through select_autoescape.
+_TEMPLATE_ENV = Environment(
+    undefined=StrictUndefined,
+    autoescape=select_autoescape(default_for_string=False, default=False, enabled_extensions=()),
+    trim_blocks=True,
+    lstrip_blocks=True,
+)
 _SENSITIVE_KEY_PARTS = ("KEY", "TOKEN", "SECRET", "PASSWORD", "PASSWD", "AUTH", "COOKIE", "HEADER")
 _SENSITIVE_SHELL_ASSIGNMENT_PATTERN = re.compile(
     r"(?P<lead>^|[\s;|&()])(?P<export>export\s+)?(?P<key>[A-Za-z_][A-Za-z0-9_-]*)(?P<sep>=)(?P<value>\"(?:[^\"\\]|\\.)*\"|'[^']*'|`[^`]*`|[^\s;|&()]+)"

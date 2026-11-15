@@ -2467,8 +2467,9 @@ def shell_command_uses_kimi_helper(command: str | None) -> bool:
         elif active_command in {"export", *_EXPORT_STYLE_COMMANDS} and assigned_var is not None:
             shell_vars_from_kimi.add(assigned_var)
         if _token_resets_command_position(token):
-            if expects_command and pending_shell_assignments_from_kimi:
-                shell_vars_from_kimi.update(pending_shell_assignments_from_kimi)
+            shell_vars_from_kimi.update(
+                pending_shell_assignments_from_kimi if expects_command else ()
+            )
             expects_command = True
             prefix_allows_options = False
             active_command = None

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import shlex
-from typing import Any
 
 from agentflow.prepared import ExecutionPaths, PreparedExecution
 from agentflow.specs import NodeSpec

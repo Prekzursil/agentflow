@@ -42,6 +42,6 @@ with Graph("dependency-audit", working_dir=".", concurrency=7) as dag:
         ),
     )
 
-    dependency_audit >> executive_summary
+    _ = dependency_audit >> executive_summary
 
 print(dag.to_json())
