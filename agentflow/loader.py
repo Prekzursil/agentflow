@@ -58,15 +58,24 @@ def _validated_pipeline_path(path: str | Path) -> Path:
 
 
 def load_pipeline_from_path(path: str | Path) -> PipelineSpec:
+    # BY-DESIGN residual (py/path-injection): a pipeline loader must open the
+    # file the user names on their own machine. The path is contained to
+    # cwd/home/temp roots (_allowed_pipeline_roots; extra roots only via the
+    # explicit AGENTFLOW_EXTRA_PIPELINE_ROOT opt-in), suffix-allowlisted,
+    # verified as a regular file, and re-derived from the parent directory
+    # listing before any use. The two sinks below carry that justification
+    # inline.
     path = _validated_pipeline_path(path)
     if path.suffix == ".py":
         return _load_pipeline_from_python(path)
+    # codeql[py/path-injection] — contained, validated, fs-re-derived pipeline path; see comment above
     data = path.read_text(encoding="utf-8")
     return load_pipeline_from_text(data, base_dir=path.parent.resolve())
 
 
 def _load_pipeline_from_python(path: Path) -> PipelineSpec:
     resolved = path.resolve()
+    # codeql[py/path-injection] — contained, validated, fs-re-derived pipeline path; see load_pipeline_from_path
     result = subprocess.run(
         [sys.executable, str(resolved)],
         capture_output=True,
