@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -12,14 +14,38 @@ from agentflow.specs import PipelineSpec, expand_compact_nodes
 _PIPELINE_SUFFIXES = {".py", ".json", ".yaml", ".yml"}
 
 
+def _allowed_pipeline_roots() -> tuple[Path, ...]:
+    """Roots a pipeline file may live in (py/path-injection containment).
+
+    Working directory, user home, and the platform temp directory cover
+    every supported invocation style (project pipelines, `~/` paths,
+    pytest tmp_path fixtures / editor temp files). An extra root can be
+    granted explicitly via AGENTFLOW_EXTRA_PIPELINE_ROOT.
+    """
+    roots = [Path.cwd(), Path.home(), Path(tempfile.gettempdir())]
+    extra = os.environ.get("AGENTFLOW_EXTRA_PIPELINE_ROOT")
+    if extra:
+        roots.append(Path(extra).expanduser().resolve())
+    return tuple(root.resolve() for root in roots)
+
+
 def _validated_pipeline_path(path: str | Path) -> Path:
     """Resolve and validate a user-supplied pipeline path before any use.
 
-    The returned path is re-derived from the parent directory's actual
-    entries, so downstream file access uses a filesystem-sourced value
-    rather than the raw user input (and cannot race with the check).
+    The resolved path must stay inside an allowed root (working
+    directory, home, or temp directory — see _allowed_pipeline_roots),
+    and the returned path is re-derived from the parent directory's
+    actual entries, so downstream file access uses a filesystem-sourced
+    value rather than the raw user input (and cannot race with the
+    check).
     """
     resolved = Path(path).expanduser().resolve()
+    if not any(resolved.is_relative_to(root) for root in _allowed_pipeline_roots()):
+        raise ValueError(
+            "pipeline path must live inside the working directory, home, or the "
+            f"temp directory (got: {resolved}); set AGENTFLOW_EXTRA_PIPELINE_ROOT "
+            "to allow another root explicitly"
+        )
     if not resolved.is_file():
         raise FileNotFoundError(f"pipeline file not found: {path}")
     if resolved.suffix.lower() not in _PIPELINE_SUFFIXES:
